@@ -3,7 +3,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 # Create your models here.
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 
 class CategoriaMedicamento(models.Model):
     id = models.AutoField(primary_key=True)
@@ -43,4 +43,17 @@ class Medicamento(models.Model):
         if self.cantidad == 0:
             self.status = False
         else:
-            self.status = True
+            self.status = True
+
+class Paciente(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=200)
+    apellidos = models.CharField(max_length=200)
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Paciente"
+        verbose_name_plural = "Pacientes"
+
+    def __str__(self):
+        return f"{self.nombre} {self.apellidos}"
