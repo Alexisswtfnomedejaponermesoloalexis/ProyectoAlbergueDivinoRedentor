@@ -1,3 +1,42 @@
+####################################################################################################################################################
+####################################################################################################################################################
+####################################################################################################################################################
+####################################################################################################################################################
+####################################################################################################################################################
+####################################################################################################################################################
+
+
+
+
+# AQUÍ EN ADMIN SE DESARROLLAN MULTIPLES PROCESOS PARA LA ADMINISTRACIÓN DEL PANEL DE ADMIN DE DJANGO
+
+# AQUÍ SE ADMINISTRA LAS CATEGORIAS DE LOS MEDICAMENTOS, LOS MEDICAMENTOS, LOS PACIENTES, LOS MÉDICOS ->
+# LAS SALIDAS DE MEDICAMENTO Y LOS EXPEDIENTES DE OS PACIENTES
+
+####################################################################################################################################################
+
+# LA CLASE DE ADMINISTRAR_SALIDAS REALIZA EL PROCESO POR DECIRSE [COMPLEJO], YA QUE REALIZAR EL DESCUENTO->
+# INMEDIATO EN LAS EXISTENCIAS REGISTRADAS EN MEDICAMENTO
+
+# IMPLEMENTAMOS LA FORMA DE CONCATENACIÓN F.STRING 
+# LA FORMA DE CONCATENAR DE RETURN('CAMPO1', 'CAMPO2') RETORNA UNA COLECCIÓN DE IDENTIFICADORES
+# MIENTRAS QUE CON F.STRING CREA UN STRING PERSONALIZADO, COMBINA VALORES DE DIFERENTES CAMPOS U OBJETOS 
+# ENTONCES, RESUMIENDO LO DICHO, USA COLECCIONES DE IDENTIFICADORES CUANDO NECESITES REFERIRTE A CAMPOS DEL MODELO
+# MIENTRAS QUE F.STRING, LO PUEDES IMPLEMENTAR CUANDO NECESITES GENERAR TEXTO PERSONALIZADO PARA MOSTRAR UNA VISUALIZACIÓN
+
+# NO QUIERE DECIR QUE UNA FORMA SEA MEJOR QUE OTRA, SIMPLEMENTE SON DOS CAMINOS DIFERENTES QUE LLEVAN A UN MISMO DESTINO.
+# AMBAS SON SENCILLAS DE INTERPRETAR YA QUE OBJ. SE REFIERE AL OBJETO INSTANCIADO DENTRO DE LA CLASE EN LA QUE TE ENCUENTRAS
+
+
+
+####################################################################################################################################################
+####################################################################################################################################################
+####################################################################################################################################################
+####################################################################################################################################################
+####################################################################################################################################################
+####################################################################################################################################################
+
+
 from django.contrib import admin
 from django import forms
 from django.core.exceptions import ValidationError
