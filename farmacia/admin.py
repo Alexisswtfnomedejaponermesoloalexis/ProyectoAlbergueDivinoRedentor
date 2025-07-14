@@ -103,7 +103,7 @@ admin.site.register(ExpedienteMedico, AdministrarExpedientes)
 class SalidaMedicamentoForm(forms.ModelForm):
     class Meta:
         model = SalidaMedicamento
-        fields = '_all_'
+        fields = '__all__'
     
     def clean(self):
         cleaned_data = super().clean()
@@ -127,6 +127,7 @@ class SalidaMedicamentoForm(forms.ModelForm):
                 raise ValidationError(mensaje)
         
         return cleaned_data
+
 
 class AdministrarSalidas(admin.ModelAdmin):
     form = SalidaMedicamentoForm
@@ -181,5 +182,19 @@ class AdministrarSalidas(admin.ModelAdmin):
         
 admin.site.register(SalidaMedicamento, AdministrarSalidas)
 
+# Vista personalizada para el dashboard
+def custom_dashboard(request):
+    today = timezone.now().date()
+    context = {
+        'medicamentos_criticos': Medicamento.objects.filter(cantidad__lt=5),
+        'salidas_hoy': SalidaMedicamento.objects.filter(fecha__date=today),
+        'total_pacientes': Paciente.objects.count(),
+        'total_medicos': Medico.objects.count(),
+        'ultimas_salidas': SalidaMedicamento.objects.select_related(
+            'medicamento', 'paciente', 'medico'
+        ).order_by('-fecha')[:10],
+        'today': today,
+    }
+    return render(request, 'admin/custom_dashboard.html', context)
 # Añadir vista personalizada al admin
 admin.site.index_template = 'custom_dashboard.html'
