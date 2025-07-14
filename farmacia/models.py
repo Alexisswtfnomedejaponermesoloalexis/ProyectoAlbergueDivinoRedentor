@@ -1,8 +1,9 @@
 from django.db import models
-
+from django.db import models
+from django.core.exceptions import ValidationError
 # Create your models here.
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 
 class CategoriaMedicamento(models.Model):
     id = models.AutoField(primary_key=True)
@@ -14,3 +15,32 @@ class CategoriaMedicamento(models.Model):
 
     def _str_(self):
         return self.nombre
+    
+class Medicamento(models.Model):
+    id = models.AutoField(primary_key=True)
+    clave = models.CharField(max_length=50, unique=True, verbose_name="Clave única")
+    nombre = models.CharField(max_length=200, verbose_name="Nombre")
+    categoria = models.ForeignKey('CategoriaMedicamento', on_delete=models.CASCADE)
+    descripcion = models.TextField(blank=True, verbose_name="Descripción")
+    fecha_caducidad = models.DateField(verbose_name="Fecha de caducidad")
+    cantidad = models.IntegerField(default=0, verbose_name="Cantidad en inventario")
+    status = models.BooleanField(default=True, verbose_name="Disponible")
+
+    class Meta:
+        verbose_name = "Medicamento"
+        verbose_name_plural = "Medicamentos"
+        ordering = ['nombre']
+
+    def _str_(self):
+        return self.nombre
+
+    def clean(self):
+        """Validación simple para evitar cantidades negativas"""
+        if self.cantidad < 0:
+            raise ValidationError("La cantidad no puede ser negativa")
+        
+        # Si la cantidad es 0, marcar como no disponible
+        if self.cantidad == 0:
+            self.status = False
+        else:
+            self.status = True
