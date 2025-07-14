@@ -39,3 +39,44 @@ def medicamentos(request):
         'categorias': categorias
     }
     return render(request, 'medicamentos.html', context)
+
+def salidas(request):
+    salidas_list = SalidaMedicamento.objects.select_related('medicamento', 'paciente', 'medico').all()
+    context = {
+        'salidas': salidas_list
+    }
+    return render(request, 'salidas.html', context)
+
+def reportes(request):
+    # Estadísticas de medicamentos más entregados
+    medicamentos_mas_entregados = SalidaMedicamento.objects.values(
+        'medicamento__nombre'
+    ).annotate(
+        total=Sum('cantidad')
+    ).order_by('-total')[:5]
+    
+    # Medicamentos críticos
+    medicamentos_criticos = Medicamento.objects.filter(cantidad__lt=5)
+    
+    context = {
+        'medicamentos_mas_entregados': medicamentos_mas_entregados,
+        'medicamentos_criticos': medicamentos_criticos
+    }
+    return render(request, 'reportes.html', context)
+
+def reportes(request):
+    # Estadísticas de medicamentos más entregados
+    medicamentos_mas_entregados = SalidaMedicamento.objects.values(
+        'medicamento__nombre'
+    ).annotate(
+        total=Sum('cantidad')
+    ).order_by('-total')[:5]
+    
+    # Medicamentos críticos
+    medicamentos_criticos = Medicamento.objects.filter(cantidad__lt=5)
+    
+    context = {
+        'medicamentos_mas_entregados': medicamentos_mas_entregados,
+        'medicamentos_criticos': medicamentos_criticos
+    }
+    return render(request, 'reportes.html', context)
