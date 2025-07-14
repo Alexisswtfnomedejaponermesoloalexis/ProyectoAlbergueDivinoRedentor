@@ -72,3 +72,17 @@ class ExpedienteMedico(models.Model):
 
     def _str_(self):
         return f"Expediente #{self.id} - {self.paciente.nombre}"
+class Medico(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=100)
+    apellidos = models.CharField(max_length=100)
+    especialidad = models.CharField(max_length=100, blank=True, null=True)
+    telefono = models.CharField(max_length=15, blank=True, null=True)
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Médico"
+        verbose_name_plural = "Médicos"
+
+    def __str__(self):
+        return f"{self.nombre} {self.apellidos}"
