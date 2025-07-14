@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Eliminar Médico</h3>
+    </div>
+    <div class="card-body">
+        <p>¿Estás seguro de que deseas eliminar al médico?</p>
+        <p><strong>{{ medico.nombre }} {{ medico.apellidos }}</strong></p>
+        
+        {% if medico_has_related %}
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i> Este médico tiene registros asociados y no puede ser eliminado.
+        </div>
+        {% else %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Sí, eliminar
+            </button>
+            <a href="{% url 'medicos' %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Cancelar
+            </a>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

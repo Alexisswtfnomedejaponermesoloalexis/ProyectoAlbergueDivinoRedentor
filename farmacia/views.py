@@ -222,3 +222,44 @@ def medico_editar(request, id):
         'medico': medico
     }
     return render(request, 'forms/medico_form.html', context)
+
+#DELETE
+def medicamento_eliminar(request, id):
+    medicamento = get_object_or_404(Medicamento, pk=id)
+    
+    if request.method == 'POST':
+        medicamento.delete()
+        messages.success(request, 'Medicamento eliminado correctamente')
+        return redirect('medicamentos')
+    
+    context = {
+        'medicamento': medicamento
+    }
+    return render(request, 'delete/medicamento_eliminar.html', context)
+
+def paciente_eliminar(request, id):
+    paciente = get_object_or_404(Paciente, pk=id)
+    
+    if request.method == 'POST':
+        paciente.delete()
+        messages.success(request, 'Paciente eliminado correctamente')
+        return redirect('pacientes')
+    
+    context = {
+        'paciente': paciente
+    }
+    return render(request, 'delete/paciente_eliminar.html', context)
+
+def medico_eliminar(request, id):
+    medico = get_object_or_404(Medico, pk=id)
+    
+    if request.method == 'POST':
+        medico.delete()
+        messages.success(request, 'Médico eliminado correctamente')
+        return redirect('medicos')
+    
+    context = {
+        'medico': medico
+    }
+    return render(request, 'delete/medico_eliminar.html', context)
+
