@@ -106,6 +106,8 @@ class SalidaMedicamentoForm(forms.ModelForm):
         fields = '__all__'
     
     def clean(self):
+        
+        #propósito de super().: Llama al método de la clase padre (admin.ModelForm en este caso).
         cleaned_data = super().clean()
         medicamento = cleaned_data.get('medicamento')
         cantidad = cleaned_data.get('cantidad')
