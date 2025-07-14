@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Medicamentos{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Inventario de Medicamentos</h2>
+        <a href="{% url 'medicamento_nuevo' %}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Nuevo Medicamento
+        </a>
+    </div>
+    
+    <!-- Botón de generar PDF (sin funcionalidad aún) -->
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+        <button class="btn btn-danger">
+            <i class="bi bi-file-earmark-pdf"></i> Generar PDF
+        </button>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Categoría</label>
+                    <select name="categoria" class="form-select">
+                        <option value="">Todas</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="1">Disponible</option>
+                        <option value="0">No disponible</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Buscar</label>
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Nombre o clave...">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Tabla de medicamentos -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Lista de Medicamentos</span>
+            <span class="badge bg-primary">{{ medicamentos.count }} registros</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Clave</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Existencias</th>
+                            <th>Estado</th>
+                            <th>Caducidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for medicamento in medicamentos %}
+                        <tr class="{% if medicamento.cantidad < 5 %}table-warning{% endif %}">
+                            <td>{{ medicamento.clave }}</td>
+                            <td>{{ medicamento.nombre }}</td>
+                            <td>{{ medicamento.categoria.nombre }}</td>
+                            <td class="{% if medicamento.cantidad < 5 %}fw-bold text-danger{% endif %}">
+                                {{ medicamento.cantidad }}
+                            </td>
+                            <td>
+                                {% if medicamento.status %}
+                                    <span class="badge bg-success">Disponible</span>
+                                {% else %}
+                                    <span class="badge bg-danger">No disponible</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ medicamento.fecha_caducidad|date:"d/m/Y" }}</td>
+                            <td>
+                                <a href="{% url 'medicamento_editar' medicamento.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'medicamento_eliminar' medicamento.id %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No hay medicamentos registrados</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Medicamentos críticos -->
+    {% if criticos %}
+    <div class="card mt-4 border-danger">
+        <div class="card-header bg-danger text-white">
+            <i class="bi bi-exclamation-triangle"></i> Medicamentos Críticos (menos de 5 unidades)
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for medicamento in criticos %}
+                <div class="col-md-3 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ medicamento.nombre }}</h5>
+                            <p class="card-text">
+                                <span class="badge bg-danger">Existencias: {{ medicamento.cantidad }}</span>
+                                <br>
+                                <small>Clave: {{ medicamento.clave }}</small>
+                                <br>
+                                <small>Caduca: {{ medicamento.fecha_caducidad|date:"d/m/Y" }}</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

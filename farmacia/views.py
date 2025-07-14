@@ -27,3 +27,15 @@ def medicos(request):
         'medicos': medicos_list
     }
     return render(request, 'medicos.html', context)
+
+def medicamentos(request):
+    medicamentos_list = Medicamento.objects.select_related('categoria').all()
+    criticos = Medicamento.objects.filter(cantidad__lt=5)
+    categorias = CategoriaMedicamento.objects.all()
+    
+    context = {
+        'medicamentos': medicamentos_list,
+        'criticos': criticos,
+        'categorias': categorias
+    }
+    return render(request, 'medicamentos.html', context)
