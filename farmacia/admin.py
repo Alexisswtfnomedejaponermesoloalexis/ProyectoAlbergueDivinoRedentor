@@ -180,3 +180,6 @@ class AdministrarSalidas(admin.ModelAdmin):
         super().delete_model(request, obj)
         
 admin.site.register(SalidaMedicamento, AdministrarSalidas)
+
+# Añadir vista personalizada al admin
+admin.site.index_template = 'custom_dashboard.html'

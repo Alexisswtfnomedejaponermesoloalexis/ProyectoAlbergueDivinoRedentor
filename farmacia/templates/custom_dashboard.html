@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block content %}
+<h2 class="mb-4">Panel Principal</h2>
+    
+<!-- Tarjetas resumen -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <i class="bi bi-exclamation-triangle"></i> Medicamentos Críticos
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ medicamentos_criticos.count }}</h5>
+                <p class="card-text">medicamentos con menos de 5 unidades</p>
+                <a href="{% url 'admin:farmacia_medicamento_changelist' %}?cantidad__lt=5" class="btn btn-danger">
+                    Ver lista <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-box-arrow-right"></i> Salidas Hoy
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ salidas_hoy.count }}</h5>
+                <p class="card-text">registros de salidas hoy</p>
+                <a href="{% url 'admin:farmacia_salidamedicamento_changelist' %}?fecha_date_exact={{ today|date:'Y-m-d' }}" class="btn btn-primary">
+                    Ver registros <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <i class="bi bi-people"></i> Pacientes
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ total_pacientes }}</h5>
+                <p class="card-text">pacientes registrados</p>
+                <a href="{% url 'admin:farmacia_paciente_changelist' %}" class="btn btn-success">
+                    Ver lista <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Nueva tarjeta para médicos -->
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <i class="bi bi-heart-pulse"></i> Médicos
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ total_medicos }}</h5>
+                <p class="card-text">médicos registrados</p>
+                <a href="{% url 'admin:farmacia_medico_changelist' %}" class="btn btn-info">
+                    Ver lista <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accesos rápidos -->
+<div class="card mt-4">
+    <div class="card-header">
+        <i class="bi bi-lightning"></i> Acciones Rápidas
+    </div>
+    <div class="card-body">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+            <a href="{% url 'admin:farmacia_medicamento_add' %}" class="btn btn-outline-primary me-md-2">
+                <i class="bi bi-plus-circle"></i> Nuevo Medicamento
+            </a>
+            <a href="{% url 'admin:farmacia_salidamedicamento_add' %}" class="btn btn-outline-primary me-md-2">
+                <i class="bi bi-box-arrow-right"></i> Registrar Salida
+            </a>
+            <a href="{% url 'admin:farmacia_paciente_add' %}" class="btn btn-outline-primary me-md-2">
+                <i class="bi bi-person-plus"></i> Nuevo Paciente
+            </a>
+            <!-- Nuevo botón para agregar médicos -->
+            <a href="{% url 'admin:farmacia_medico_add' %}" class="btn btn-outline-primary">
+                <i class="bi bi-person-plus"></i> Nuevo Médico
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Últimas salidas -->
+<div class="card mt-4">
+    <div class="card-header">
+        <i class="bi bi-clock-history"></i> Últimas Salidas Registradas
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Medicamento</th>
+                        <th>Paciente</th>
+                        <th>Médico</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for salida in ultimas_salidas %}
+                    <tr>
+                        <td>{{ salida.fecha|date:"d/m/Y H:i" }}</td>
+                        <td>{{ salida.medicamento.nombre }}</td>
+                        <td>{{ salida.paciente.nombre }} {{ salida.paciente.apellidos }}</td>
+                        <td>{{ salida.medico.nombre }} {{ salida.medico.apellidos }}</td>
+                        <td>{{ salida.cantidad }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No hay salidas registradas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <a href="{% url 'admin:farmacia_salidamedicamento_changelist' %}" class="btn btn-outline-secondary">
+            Ver histórico completo <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+</div>
+
+<style>
+.display-4 {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+.row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.col-md-3 {
+    flex: 1;
+}
+.btn-outline-primary {
+    border: 2px solid #0d6efd;
+    color: #0d6efd;
+    font-weight: 500;
+}
+</style>
+{% endblock %}
