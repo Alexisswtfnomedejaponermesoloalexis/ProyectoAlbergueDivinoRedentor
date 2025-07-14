@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Reportes{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Reportes y Estadísticas</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Medicamentos Más Entregados</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Medicamento</th>
+                            <th>Cantidad Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for medicamento in medicamentos_mas_entregados %}
+                        <tr>
+                            <td>{{ medicamento.medicamento__nombre }}</td>
+                            <td>{{ medicamento.total }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h4>Medicamentos Críticos (menos de 5 unidades)</h4>
+                <ul class="list-group">
+                    {% for medicamento in medicamentos_criticos %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ medicamento.nombre }}
+                        <span class="badge bg-danger rounded-pill">{{ medicamento.cantidad }}</span>
+                    </li>
+                    {% e

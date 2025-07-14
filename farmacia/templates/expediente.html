@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Expediente de {{ paciente.nombre }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Expediente Médico: {{ paciente.nombre }} {{ paciente.apellidos }}</h2>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h4>Datos del Paciente</h4>
+                <p><strong>Fecha de Registro:</strong> {{ paciente.fecha_registro|date:"d/m/Y" }}</p>
+            </div>
+        </div>
+
+        <!-- Nueva sección para agregar notas médicas -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4>Agregar Nueva Nota Médica</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.nota }}
+                        {% if form.nota.errors %}
+                            <div class="text-danger">{{ form.nota.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar Nota</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Historial de notas médicas -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4>Historial Médico</h4>
+            </div>
+            <div class="card-body">
+                {% if historias %}
+                    <div class="timeline">
+                        {% for historia in historias %}
+                        <div class="timeline-item mb-4">
+                            <div class="timeline-header d-flex justify-content-between">
+                                <strong>{{ historia.medico.get_full_name|default:historia.medico.u }}</strong>
+                                <span class="text-muted">{{ historia.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <div class="timeline-content p-3 bg-light rounded">
+                                {{ historia.nota|linebreaks }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No hay historial médico registrado para este paciente.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Medicamentos entregados -->
+        <div class="card mt-4">
+            <div class="card-header bg-success text-white">
+                <h4>Medicamentos Entregados</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Medicamento</th>
+                                <th>Cantidad</th>
+                                <th>Médico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for salida in salidas %}
+                            <tr>
+                                <td>{{ salida.fecha|date:"d/m/Y" }}</td>
+                                <td>{{ salida.medicamento.nombre }}</td>
+                                <td>{{ salida.cantidad }}</td>
+                                <td>{{ salida.medico.get_full_name|default:salida.medico.username }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">No hay registros de medicamentos</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

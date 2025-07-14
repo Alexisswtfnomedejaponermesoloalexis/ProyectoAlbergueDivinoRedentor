@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Salidas de Medicamentos{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Registro de Salidas</h2>
+        <a href="{% url 'salida_nueva' %}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Nueva Salida
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Fecha Inicio</label>
+                    <input type="date" name="fecha_inicio" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Fecha Fin</label>
+                    <input type="date" name="fecha_fin" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Médico</label>
+                    <input type="text" name="medico" class="form-control" placeholder="Nombre de médico...">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de salidas -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Historial de Salidas</span>
+            <span class="badge bg-primary">{{ salidas.count }} registros</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Medicamento</th>
+                            <th>Paciente</th>
+                            <th>Cantidad</th>
+                            <th>Médico</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for salida in salidas %}
+                        <tr>
+                            <td>{{ salida.fecha|date:"d/m/Y H:i" }}</td>
+                            <td>{{ salida.medicamento.nombre }}</td>
+                            <td>{{ salida.paciente.nombre }} {{ salida.paciente.apellidos }}</td>
+                            <td>{{ salida.cantidad }}</td>
+                            <td>{{ salida.medico.get_full_name }}</td>
+                            <td>
+                             
+                                <a href="#" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No hay salidas registradas</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
