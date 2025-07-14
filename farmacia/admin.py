@@ -84,3 +84,19 @@ class AdministrarPacientes(admin.ModelAdmin):
         return ()
 admin.site.register(Paciente, AdministrarPacientes)
 
+class AdministrarExpedientes(admin.ModelAdmin):
+    list_display = ('id', 'paciente_info', 'fecha_creacion')
+    search_fields = ('paciente__nombre', 'paciente__apellidos')
+    date_hierarchy = 'fecha_creacion'
+    list_per_page = 20
+    
+    def paciente_info(self, obj):
+        return f"{obj.paciente.nombre} {obj.paciente.apellidos}"
+    paciente_info.short_description = 'Paciente'
+    
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.groups.filter(name="Usuarios").exists():
+            return ('paciente', 'historia_medica')
+        return ()
+admin.site.register(ExpedienteMedico, AdministrarExpedientes)
+
