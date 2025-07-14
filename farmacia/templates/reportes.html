@@ -36,4 +36,12 @@
                         {{ medicamento.nombre }}
                         <span class="badge bg-danger rounded-pill">{{ medicamento.cantidad }}</span>
                     </li>
-                    {% e
+                    {% empty %}
+                    <li class="list-group-item">No hay medicamentos críticos</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
