@@ -196,5 +196,7 @@ def custom_dashboard(request):
         'today': today,
     }
     return render(request, 'admin/custom_dashboard.html', context)
+
+
 # Añadir vista personalizada al admin
 admin.site.index_template = 'custom_dashboard.html'
