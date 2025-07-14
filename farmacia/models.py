@@ -57,3 +57,18 @@ class Paciente(models.Model):
 
     def __str__(self):
         return f"{self.nombre} {self.apellidos}"
+    
+
+class ExpedienteMedico(models.Model):
+    id = models.AutoField(primary_key=True)
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    historia_medica = models.TextField(blank=True, verbose_name="Historia Médica")
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    ultima_actualizacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Expediente Médico"
+        verbose_name_plural = "Expedientes Médicos"
+
+    def _str_(self):
+        return f"Expediente #{self.id} - {self.paciente.nombre}"
