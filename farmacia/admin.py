@@ -100,3 +100,83 @@ class AdministrarExpedientes(admin.ModelAdmin):
         return ()
 admin.site.register(ExpedienteMedico, AdministrarExpedientes)
 
+class SalidaMedicamentoForm(forms.ModelForm):
+    class Meta:
+        model = SalidaMedicamento
+        fields = '_all_'
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        medicamento = cleaned_data.get('medicamento')
+        cantidad = cleaned_data.get('cantidad')
+        
+        if not medicamento or not cantidad:
+            return cleaned_data
+        
+        if self.instance.pk is None:
+            if cantidad > medicamento.cantidad:
+                mensaje = f"No hay suficiente inventario. Disponible: {medicamento.cantidad}"
+                raise ValidationError(mensaje)
+        else:
+            salida_original = SalidaMedicamento.objects.get(pk=self.instance.pk)
+            diferencia = cantidad - salida_original.cantidad
+            disponible = medicamento.cantidad + salida_original.cantidad
+            
+            if diferencia > disponible:
+                mensaje = f"No hay suficiente inventario. Disponible: {disponible}"
+                raise ValidationError(mensaje)
+        
+        return cleaned_data
+
+class AdministrarSalidas(admin.ModelAdmin):
+    form = SalidaMedicamentoForm
+    list_display = ('id', 'medicamento_info', 'paciente_info', 'cantidad', 'fecha', 'medico_info')
+    search_fields = ('medicamento_nombre', 'pacientenombre', 'mediconombre', 'medico_apellidos')
+    date_hierarchy = 'fecha'
+    list_filter = ('medico',)
+    list_per_page = 20
+    
+    def medicamento_info(self, obj):
+        return obj.medicamento.nombre
+    medicamento_info.short_description = 'Medicamento'
+    
+    def paciente_info(self, obj):
+        return f"{obj.paciente.nombre} {obj.paciente.apellidos}"
+    paciente_info.short_description = 'Paciente'
+    
+    def medico_info(self, obj):
+        return f"{obj.medico.nombre} {obj.medico.apellidos}"
+    medico_info.short_description = 'Médico'
+    
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.groups.filter(name="Usuarios").exists():
+            return ('medicamento', 'paciente', 'cantidad', 'fecha', 'medico')
+        return ('fecha',)
+    
+    def save_model(self, request, obj, form, change):
+        if not change:
+            medicamento = obj.medicamento
+            medicamento.cantidad -= obj.cantidad
+            if medicamento.cantidad < 0:
+                medicamento.cantidad = 0
+            medicamento.status = medicamento.cantidad > 0
+            medicamento.save()
+        else:
+            salida_original = SalidaMedicamento.objects.get(pk=obj.pk)
+            diferencia = obj.cantidad - salida_original.cantidad
+            medicamento = obj.medicamento
+            medicamento.cantidad -= diferencia
+            if medicamento.cantidad < 0:
+                medicamento.cantidad = 0
+            medicamento.status = medicamento.cantidad > 0
+            medicamento.save()
+        super().save_model(request, obj, form, change)
+    
+    def delete_model(self, request, obj):
+        medicamento = obj.medicamento
+        medicamento.cantidad += obj.cantidad
+        medicamento.status = True
+        medicamento.save()
+        super().delete_model(request, obj)
+        
+admin.site.register(SalidaMedicamento, AdministrarSalidas)
