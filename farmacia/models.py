@@ -86,3 +86,38 @@ class Medico(models.Model):
 
     def __str__(self):
         return f"{self.nombre} {self.apellidos}"
+    
+
+class HistoriaMedica(models.Model):
+    expediente = models.ForeignKey(ExpedienteMedico, on_delete=models.CASCADE, related_name='historias')
+    nota = models.TextField(verbose_name="Nota médica")
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    medico = models.ForeignKey(Medico, on_delete=models.CASCADE, verbose_name="Médico que registra")
+
+    class Meta:
+        verbose_name = "Historia Médica"
+        verbose_name_plural = "Historias Médicas"
+        ordering = ['-fecha_creacion']
+
+    def _str_(self):
+        return f"Nota del {self.fecha_creacion.strftime('%d/%m/%Y')}"
+    
+
+
+
+class SalidaMedicamento(models.Model):
+    id = models.AutoField(primary_key=True)
+    medicamento = models.ForeignKey(Medicamento, on_delete=models.CASCADE)
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField()
+    fecha = models.DateTimeField(auto_now_add=True)
+    medico = models.ForeignKey(Medico, on_delete=models.CASCADE, verbose_name="Médico responsable")
+
+    class Meta:
+        verbose_name = "Salida de Medicamento"
+        verbose_name_plural = "Salidas de Medicamentos"
+
+    def _str_(self):
+        return f"Salida #{self.id} - {self.medicamento.nombre}"
+    
+    
