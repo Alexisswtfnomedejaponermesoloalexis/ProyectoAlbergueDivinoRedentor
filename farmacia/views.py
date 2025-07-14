@@ -47,22 +47,6 @@ def salidas(request):
     }
     return render(request, 'salidas.html', context)
 
-def reportes(request):
-    # Estadísticas de medicamentos más entregados
-    medicamentos_mas_entregados = SalidaMedicamento.objects.values(
-        'medicamento__nombre'
-    ).annotate(
-        total=Sum('cantidad')
-    ).order_by('-total')[:5]
-    
-    # Medicamentos críticos
-    medicamentos_criticos = Medicamento.objects.filter(cantidad__lt=5)
-    
-    context = {
-        'medicamentos_mas_entregados': medicamentos_mas_entregados,
-        'medicamentos_criticos': medicamentos_criticos
-    }
-    return render(request, 'reportes.html', context)
 
 def reportes(request):
     # Estadísticas de medicamentos más entregados
@@ -80,3 +64,161 @@ def reportes(request):
         'medicamentos_criticos': medicamentos_criticos
     }
     return render(request, 'reportes.html', context)
+
+
+def expediente(request, id):
+    paciente = get_object_or_404(Paciente, pk=id)
+    expediente, created = ExpedienteMedico.objects.get_or_create(paciente=paciente)
+    salidas = SalidaMedicamento.objects.filter(paciente=paciente).select_related('medicamento')
+    
+    # Obtener todas las historias médicas ordenadas por fecha descendente
+    historias = expediente.historias.all().order_by('-fecha_creacion')
+    
+    if request.method == 'POST':
+        form = HistoriaMedicaForm(request.POST)
+        if form.is_valid():
+            nueva_historia = form.save(commit=False)
+            nueva_historia.expediente = expediente
+            nueva_historia.save()
+            messages.success(request, 'Nota médica agregada correctamente')
+            return redirect('expediente', id=paciente.id)
+    else:
+        form = HistoriaMedicaForm()
+    
+    context = {
+        'paciente': paciente,
+        'expediente': expediente,
+        'salidas': salidas,
+        'historias': historias,
+        'form': form
+    }
+    return render(request, 'expediente.html', context)
+
+
+##FORMS 
+
+def medicamento_nuevo(request):
+    if request.method == 'POST':
+        form = MedicamentoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Medicamento creado correctamente')
+            return redirect('medicamentos')
+    else:
+        form = MedicamentoForm()
+    
+    context = {
+        'titulo': 'Nuevo Medicamento',
+        'form': form
+    }
+    return render(request, 'forms/medicamento_form.html', context)
+
+def medicamento_editar(request, id):
+    medicamento = get_object_or_404(Medicamento, pk=id)
+    
+    if request.method == 'POST':
+        form = MedicamentoForm(request.POST, instance=medicamento)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Medicamento actualizado correctamente')
+            return redirect('medicamentos')
+    else:
+        form = MedicamentoForm(instance=medicamento)
+    
+    context = {
+        'titulo': 'Editar Medicamento',
+        'form': form,
+        'medicamento': medicamento
+    }
+    return render(request, 'forms/medicamento_form.html', context)
+
+def paciente_nuevo(request):
+    if request.method == 'POST':
+        form = PacienteForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Paciente creado correctamente')
+            return redirect('pacientes')
+    else:
+        form = PacienteForm()
+    
+    context = {
+        'titulo': 'Nuevo Paciente',
+        'form': form
+    }
+    return render(request, 'forms/paciente_form.html', context)
+
+def paciente_editar(request, id):
+    paciente = get_object_or_404(Paciente, pk=id)
+    
+    if request.method == 'POST':
+        form = PacienteForm(request.POST, instance=paciente)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Paciente actualizado correctamente')
+            return redirect('pacientes')
+    else:
+        form = PacienteForm(instance=paciente)
+    
+    context = {
+        'titulo': 'Editar Paciente',
+        'form': form
+    }
+    return render(request, 'forms/paciente_form.html', context)
+
+def salida_nueva(request):
+    if request.method == 'POST':
+        form = SalidaMedicamentoForm(request.POST)
+        if form.is_valid():
+            salida = form.save()
+            # Actualizar inventario
+            medicamento = salida.medicamento
+            medicamento.cantidad -= salida.cantidad
+            if medicamento.cantidad < 0:
+                medicamento.cantidad = 0
+            medicamento.save()
+            messages.success(request, 'Salida registrada correctamente')
+            return redirect('salidas')
+    else:
+        form = SalidaMedicamentoForm()
+    
+    context = {
+        'titulo': 'Nueva Salida de Medicamento',
+        'form': form
+    }
+    return render(request, 'forms/salida_form.html', context)
+
+def medico_nuevo(request):
+    if request.method == 'POST':
+        form = MedicoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Médico creado correctamente')
+            return redirect('medicos')
+    else:
+        form = MedicoForm()
+    
+    context = {
+        'titulo': 'Nuevo Médico',
+        'form': form
+    }
+    return render(request, 'forms/medico_form.html', context)
+
+def medico_editar(request, id):
+    medico = get_object_or_404(Medico, pk=id)
+    
+    if request.method == 'POST':
+        form = MedicoForm(request.POST, instance=medico)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Médico actualizado correctamente')
+            return redirect('medicos')
+    else:
+        form = MedicoForm(instance=medico)
+    
+    context = {
+        'titulo': 'Editar Médico',
+        'form': form,
+        'medico': medico
+    }
+    return render(request, 'forms/medico_form.html', context)

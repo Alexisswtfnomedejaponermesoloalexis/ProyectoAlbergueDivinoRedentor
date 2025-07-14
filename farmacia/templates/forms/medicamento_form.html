@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0 text-center">{{ titulo }}</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="id_clave" class="form-label fw-bold">Clave</label>
+                            {{ form.clave }}
+                            <div class="invalid-feedback">
+                                Por favor ingrese una clave válida.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="id_nombre" class="form-label fw-bold">Nombre</label>
+                            {{ form.nombre }}
+                            <div class="invalid-feedback">
+                                Por favor ingrese un nombre válido.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="id_categoria" class="form-label fw-bold">Categoría</label>
+                            {{ form.categoria }}
+                            <div class="invalid-feedback">
+                                Por favor seleccione una categoría.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="id_fecha_caducidad" class="form-label fw-bold">Fecha de Caducidad</label>
+                            {{ form.fecha_caducidad }}
+                            <div class="invalid-feedback">
+                                Por favor ingrese una fecha válida.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label for="id_cantidad" class="form-label fw-bold">Cantidad en Inventario</label>
+                            {{ form.cantidad }}
+                            <div class="invalid-feedback">
+                                Por favor ingrese una cantidad válida.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label class="form-label fw-bold d-block">Disponible</label>
+                            <div class="form-check form-switch mt-2">
+                                {{ form.status }}
+                                <label class="form-check-label" for="id_status">
+                                    Activo/Inactivo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="form-group">
+                        <label for="id_descripcion" class="form-label fw-bold">Descripción</label>
+                        {{ form.descripcion }}
+                        <div class="invalid-feedback">
+                            Por favor ingrese una descripción válida.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <a href="{% url 'medicamentos' %}" class="btn btn-outline-secondary me-md-2">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="card-footer text-muted text-center">
+            Sistema de Farmacia - Albergue Divino Redentor © {% now "Y" %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 15px;
+        border: none;
+    }
+    .card-header {
+        border-top-left-radius: 15px !important;
+        border-top-right-radius: 15px !important;
+        padding: 1.5rem;
+    }
+    .card-body {
+        padding: 2rem;
+    }
+    .form-control, .form-select {
+        border-radius: 10px;
+        padding: 12px 15px;
+        border: 1px solid #ced4da;
+        transition: all 0.3s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #3d5afe;
+        box-shadow: 0 0 0 0.25rem rgba(61, 90, 254, 0.25);
+    }
+    .btn {
+        border-radius: 10px;
+        padding: 10px 25px;
+        font-weight: 600;
+    }
+    .btn-outline-secondary {
+        border: 2px solid #6c757d;
+    }
+    .form-label {
+        margin-bottom: 0.5rem;
+        color: #495057;
+        font-size: 1.05rem;
+    }
+    .form-switch .form-check-input {
+        height: 1.5em;
+        width: 3em;
+        cursor: pointer;
+    }
+    .form-switch .form-check-label {
+        margin-left: 0.5rem;
+        vertical-align: middle;
+    }
+    .invalid-feedback {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
