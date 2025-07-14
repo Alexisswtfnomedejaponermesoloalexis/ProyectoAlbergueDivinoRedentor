@@ -136,24 +136,38 @@ class AdministrarSalidas(admin.ModelAdmin):
     date_hierarchy = 'fecha'
     list_filter = ('medico',)
     list_per_page = 20
-    
+
+    #self: referencia a la instancia actual (AdministrarSalidas)
+    #obj: Instancia del modelo específico que se está manipulando (SalidaMedicamento)
     def medicamento_info(self, obj):
         return obj.medicamento.nombre
     medicamento_info.short_description = 'Medicamento'
     
+    #self: referencia a la instancia actual (AdministrarSalidas)
+    #obj: Instancia del modelo específico que se está manipulando (SalidaMedicamento)
     def paciente_info(self, obj):
         return f"{obj.paciente.nombre} {obj.paciente.apellidos}"
     paciente_info.short_description = 'Paciente'
     
+    #self: referencia a la instancia actual (AdministrarSalidas)
+    #obj: Instancia del modelo específico que se está manipulando (SalidaMedicamento)
     def medico_info(self, obj):
         return f"{obj.medico.nombre} {obj.medico.apellidos}"
     medico_info.short_description = 'Médico'
     
+    #self: referencia a la instancia actual (AdministrarSalidas)
+    #obj: Instancia del modelo específico que se está manipulando (SalidaMedicamento)
+
     def get_readonly_fields(self, request, obj=None):
         if request.user.groups.filter(name="Usuarios").exists():
             return ('medicamento', 'paciente', 'cantidad', 'fecha', 'medico')
         return ('fecha',)
     
+    #self: referencia a la instancia actual (AdministrarSalidas)
+    #request: Objeto HttpRequest que contiene toda la información de la solicitud HTTP
+    #obj: Instancia del modelo específico que se está manipulando (SalidaMedicamento)
+    #form: Instancia del formulario utilizado en la vista de administración
+    #change: Booleano que indica si es una edición o creación
     def save_model(self, request, obj, form, change):
         if not change:
             medicamento = obj.medicamento
@@ -171,13 +185,22 @@ class AdministrarSalidas(admin.ModelAdmin):
                 medicamento.cantidad = 0
             medicamento.status = medicamento.cantidad > 0
             medicamento.save()
+            #propósito de super().: Llama al método de la clase padre (admin.ModelAdmin en este caso).
+            #save_model(): Guarda el objeto en la base de datos.
+            #delete_model(): Elimina el objeto de la base de datos.
         super().save_model(request, obj, form, change)
-    
+
+     #self: referencia a la instancia actual (AdministrarSalidas)
+    #request: Objeto HttpRequest que contiene toda la información de la solicitud HTTP
+    #obj: Instancia del modelo específico que se está manipulando (SalidaMedicamento)
     def delete_model(self, request, obj):
         medicamento = obj.medicamento
         medicamento.cantidad += obj.cantidad
         medicamento.status = True
         medicamento.save()
+        #propósito de super().: Llama al método de la clase padre (admin.ModelAdmin en este caso).
+        #save_model(): Guarda el objeto en la base de datos.
+        #delete_model(): Elimina el objeto de la base de datos.
         super().delete_model(request, obj)
         
 admin.site.register(SalidaMedicamento, AdministrarSalidas)
