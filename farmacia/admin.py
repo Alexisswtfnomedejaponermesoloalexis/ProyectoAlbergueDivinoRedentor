@@ -246,7 +246,7 @@ class AdministrarSalidas(admin.ModelAdmin):
         
 admin.site.register(SalidaMedicamento, AdministrarSalidas)
 
-# Vista personalizada para el dashboard
+# Vista personalizada para el admin
 def custom_dashboard(request):
     today = timezone.now().date()
     context = {
