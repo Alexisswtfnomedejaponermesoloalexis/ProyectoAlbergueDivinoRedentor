@@ -103,7 +103,6 @@ def salidas(request):
 # SE REQUIERE IMPORTAR 'SUM'
 # EL MÉTODO DE ORDER_BY SIRVE PARA ORDENAR LOS VALORES
 def reportes(request):
-    
     # Estadísticas de medicamentos más entregados
     medicamentos_mas_entregados = SalidaMedicamento.objects.values(
         'medicamento__nombre'
@@ -111,30 +110,23 @@ def reportes(request):
         total=Sum('cantidad')
     ).order_by('-total')[:5]
     
-    # AQUÍ ALMACENA LOS MEDICAMENTOS CRÍTICOS FILTRANDO SOLO LA CANTIDAD DE EXISTENCIAS __LT5
+    # CORRECCIÓN: Cambiar 'existencias' por 'cantidad'
     medicamentos_criticos = Medicamento.objects.filter(cantidad__lt=5)
     
-    ## MÓDULO DE REPORTES AÚN SIN TERMINAR
-
-    context = {
-        'medicamentos_mas_entregados': medicamentos_mas_entregados,
-        'medicamentos_criticos': medicamentos_criticos
-    }
-     # Datos para gráfica de barras (medicamentos más entregados)
+    # Datos para gráficas
     medicamentos_entregados_data = list(
         SalidaMedicamento.objects.values('medicamento__nombre')
         .annotate(total=Sum('cantidad'))
         .order_by('-total')[:5]
     )
     
-    # Datos para gráfica de pastel (distribución por categoría)
     distribucion_categorias = list(
         Medicamento.objects.values('categoria__nombre')
         .annotate(total=Sum('cantidad'))
         .exclude(total=0)
     )
     
-    # Convertir a JSON para usar en JavaScript
+    # Convertir a JSON
     medicamentos_entregados_json = json.dumps(
         [{'medicamento': item['medicamento__nombre'], 'total': item['total']} 
          for item in medicamentos_entregados_data]
@@ -146,12 +138,12 @@ def reportes(request):
     )
     
     context = {
-        # ... datos existentes ...
+        'medicamentos_mas_entregados': medicamentos_mas_entregados,
+        'medicamentos_criticos': medicamentos_criticos,
         'medicamentos_entregados_json': medicamentos_entregados_json,
         'distribucion_categorias_json': distribucion_categorias_json
     }
     return render(request, 'reportes.html', context)
-
 
 # FUNCIÓN DE EXPEDIENTES, DICHA FUNCIÓN DE EXPEDIENTE TRABAJA EN CONJUNTO CON 3 MODELOS, EXTRAE TODOS LOS DATOS DEL PACIENTE
 # UTILIZA EL MODELO HISTOPRIA_MÉDICA, HISTORIA_MÉDICA FUNCIONA COMO NOTAS QUE AGREGA EL MÉDICO HACÍA EL PACIENTE
