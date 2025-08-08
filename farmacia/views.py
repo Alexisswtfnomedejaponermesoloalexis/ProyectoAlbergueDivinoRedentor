@@ -25,6 +25,8 @@ from django.contrib import messages
 from django.db.models import Sum
 from .models import CategoriaMedicamento, Medicamento, Paciente, ExpedienteMedico, SalidaMedicamento, Medico
 from .forms import MedicamentoForm, PacienteForm, SalidaMedicamentoForm, HistoriaMedicaForm, MedicoForm
+from django.db.models import Count
+import json
 
 #FUNCIÓN DEL MENÚ PRINCIPAL, LA FUNCIÓN INDEX PERMITE MOSTRAR UNA INTERFAZ MÁS INTUITIVA MOSTRANDO CARDS DE INFORMACIÓN.
 # PERMITE MOSTRAR LOS EL CONTEO D EMÉDICOS, PACIENTES, LOS MEDICAMENTOS_CRITICOS
@@ -92,6 +94,7 @@ def salidas(request):
 # SE REQUIERE IMPORTAR 'SUM'
 # EL MÉTODO DE ORDER_BY SIRVE PARA ORDENAR LOS VALORES
 def reportes(request):
+    
     # Estadísticas de medicamentos más entregados
     medicamentos_mas_entregados = SalidaMedicamento.objects.values(
         'medicamento__nombre'
@@ -107,6 +110,36 @@ def reportes(request):
     context = {
         'medicamentos_mas_entregados': medicamentos_mas_entregados,
         'medicamentos_criticos': medicamentos_criticos
+    }
+     # Datos para gráfica de barras (medicamentos más entregados)
+    medicamentos_entregados_data = list(
+        SalidaMedicamento.objects.values('medicamento__nombre')
+        .annotate(total=Sum('cantidad'))
+        .order_by('-total')[:5]
+    )
+    
+    # Datos para gráfica de pastel (distribución por categoría)
+    distribucion_categorias = list(
+        Medicamento.objects.values('categoria__nombre')
+        .annotate(total=Sum('cantidad'))
+        .exclude(total=0)
+    )
+    
+    # Convertir a JSON para usar en JavaScript
+    medicamentos_entregados_json = json.dumps(
+        [{'medicamento': item['medicamento__nombre'], 'total': item['total']} 
+         for item in medicamentos_entregados_data]
+    )
+    
+    distribucion_categorias_json = json.dumps(
+        [{'categoria': item['categoria__nombre'], 'total': item['total']} 
+         for item in distribucion_categorias]
+    )
+    
+    context = {
+        # ... datos existentes ...
+        'medicamentos_entregados_json': medicamentos_entregados_json,
+        'distribucion_categorias_json': distribucion_categorias_json
     }
     return render(request, 'reportes.html', context)
 
