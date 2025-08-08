@@ -45,6 +45,7 @@ urlpatterns = [
     path('pacientes/editar/<int:id>/', views.paciente_editar, name='paciente_editar'),
     path('medicos/nuevo/', views.medico_nuevo, name='medico_nuevo'),
     path('medicos/editar/<int:id>/', views.medico_editar, name='medico_editar'),
+    path('categoria/nueva/', views.categoria_nueva, name='categoria_nueva'),
 
     #delete
 

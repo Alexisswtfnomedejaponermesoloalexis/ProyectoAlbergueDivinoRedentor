@@ -474,3 +474,15 @@ def generar_pdf_inventario(request):
     response.write(pdf)
     
     return response
+
+def categoria_nueva(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        if nombre:
+            CategoriaMedicamento.objects.create(nombre=nombre)
+            messages.success(request, 'Categoría creada correctamente')
+            return redirect('medicamentos')
+        else:
+            messages.error(request, 'El nombre de la categoría es requerido')
+    
+    return render(request, 'forms/categoria_form.html')
