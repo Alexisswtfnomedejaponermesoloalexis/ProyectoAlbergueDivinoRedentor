@@ -33,7 +33,7 @@ class CategoriaMedicamento(models.Model):
         verbose_name = "Categoría de Medicamento"
         verbose_name_plural = "Categorías de Medicamentos"
 
-    def _str_(self):
+    def __str__(self):
         return self.nombre
     
 class Medicamento(models.Model):
@@ -51,7 +51,7 @@ class Medicamento(models.Model):
         verbose_name_plural = "Medicamentos"
         ordering = ['nombre']
 
-    def _str_(self):
+    def __str__(self):
         return self.nombre
 
     def clean(self):
@@ -90,7 +90,7 @@ class ExpedienteMedico(models.Model):
         verbose_name = "Expediente Médico"
         verbose_name_plural = "Expedientes Médicos"
 
-    def _str_(self):
+    def __str__(self):
         return f"Expediente #{self.id} - {self.paciente.nombre}"
 class Medico(models.Model):
     id = models.AutoField(primary_key=True)
@@ -119,7 +119,7 @@ class HistoriaMedica(models.Model):
         verbose_name_plural = "Historias Médicas"
         ordering = ['-fecha_creacion']
 
-    def _str_(self):
+    def __str__(self):
         return f"Nota del {self.fecha_creacion.strftime('%d/%m/%Y')}"
     
 
@@ -137,7 +137,7 @@ class SalidaMedicamento(models.Model):
         verbose_name = "Salida de Medicamento"
         verbose_name_plural = "Salidas de Medicamentos"
 
-    def _str_(self):
+    def __str__(self):
         return f"Salida #{self.id} - {self.medicamento.nombre}"
     
     
