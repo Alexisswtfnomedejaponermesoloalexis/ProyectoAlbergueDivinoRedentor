@@ -23,6 +23,7 @@
 ####################################################################################################################################################
 
 from django.urls import path
+from .views import generar_pdf_inventario
 from . import views
 
 urlpatterns = [
@@ -33,6 +34,7 @@ urlpatterns = [
     path('salidas/', views.salidas, name='salidas'),
     path('expediente/<int:id>/', views.expediente, name='expediente'),
     path('reportes/', views.reportes, name='reportes'),
+    path('medicamentos/pdf/', generar_pdf_inventario, name='generar_pdf_inventario'),
 
     #forms
 

@@ -34,11 +34,11 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     </div>
     
     <!-- Botón de generar PDF (sin funcionalidad aún) -->
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
-        <button class="btn btn-danger">
-            <i class="bi bi-file-earmark-pdf"></i> Generar PDF
-        </button>
-    </div>
+   <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-3">
+    <a href="{% url 'generar_pdf_inventario' %}" class="btn btn-danger">
+        <i class="bi bi-file-earmark-pdf"></i> Generar PDF
+    </a>
+</div>
     
     <!-- Filtros -->
     <div class="card mb-4">

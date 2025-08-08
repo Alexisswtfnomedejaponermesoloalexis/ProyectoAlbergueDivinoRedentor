@@ -27,6 +27,15 @@ from .models import CategoriaMedicamento, Medicamento, Paciente, ExpedienteMedic
 from .forms import MedicamentoForm, PacienteForm, SalidaMedicamentoForm, HistoriaMedicaForm, MedicoForm
 from django.db.models import Count
 import json
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.lib import colors
+from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from io import BytesIO
+from django.utils import timezone
+
 
 #FUNCIÓN DEL MENÚ PRINCIPAL, LA FUNCIÓN INDEX PERMITE MOSTRAR UNA INTERFAZ MÁS INTUITIVA MOSTRANDO CARDS DE INFORMACIÓN.
 # PERMITE MOSTRAR LOS EL CONTEO D EMÉDICOS, PACIENTES, LOS MEDICAMENTOS_CRITICOS
@@ -365,3 +374,111 @@ def medico_eliminar(request, id):
     }
     return render(request, 'delete/medico_eliminar.html', context)
 
+def generar_pdf_inventario(request):
+    # Obtener todos los medicamentos
+    medicamentos = Medicamento.objects.select_related('categoria').all()
+    
+    # Crear un objeto HttpResponse con los headers para PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="inventario_medicamentos.pdf"'
+    
+    # Crear un buffer para el PDF
+    buffer = BytesIO()
+    
+    # Crear el documento PDF en formato horizontal
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
+    elements = []
+    
+    # Estilos
+    styles = getSampleStyleSheet()
+    style_title = styles['Title']
+    style_heading = styles['Heading2']
+    style_body = styles['BodyText']
+    
+    # Título del documento
+    elements.append(Paragraph("Inventario de Medicamentos - Albergue Divino Redentor", style_title))
+    elements.append(Spacer(1, 12))
+    elements.append(Paragraph(f"Fecha de generación: {timezone.now().strftime('%d/%m/%Y %H:%M')}", style_body))
+    elements.append(Spacer(1, 24))
+    
+    # Datos para la tabla
+    data = [["Clave", "Nombre", "Categoría", "Descripción", "Existencias", "Estado", "Caducidad"]]
+    
+    for med in medicamentos:
+        estado = "Disponible" if med.status else "No disponible"
+        caducidad = med.fecha_caducidad.strftime("%d/%m/%Y") if med.fecha_caducidad else "N/A"
+        # Acortar la descripción si es muy larga
+        descripcion = (med.descripcion[:50] + '...') if len(med.descripcion) > 50 else med.descripcion
+        
+        # Resaltar medicamentos críticos
+        estilo_fila = []
+        if med.cantidad < 5:
+            estilo_fila = ['TEXTCOLOR', colors.red]
+        
+        data.append([
+            med.clave,
+            med.nombre,
+            med.categoria.nombre,
+            descripcion,
+            str(med.cantidad),
+            estado,
+            caducidad
+        ])
+    
+    # Crear la tabla
+    table = Table(data)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0d6efd')),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0,0), (-1,0), 12),
+        ('BOTTOMPADDING', (0,0), (-1,0), 12),
+        ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#f8f9fa')),
+        ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#dee2e6')),
+        ('FONTSIZE', (0,1), (-1,-1), 10),
+    ]))
+    
+    # Resaltar filas de medicamentos críticos
+    for i in range(1, len(data)):
+        if int(data[i][4]) < 5:  # Columna de existencias
+            table.setStyle(TableStyle([
+                ('TEXTCOLOR', (0,i), (-1,i), colors.red),
+                ('FONTNAME', (0,i), (-1,i), 'Helvetica-Bold'),
+            ]))
+    
+    elements.append(table)
+    
+    # Medicamentos críticos
+    criticos = Medicamento.objects.filter(cantidad__lt=5)
+    if criticos.exists():
+        elements.append(Spacer(1, 24))
+        elements.append(Paragraph("Medicamentos Críticos (menos de 5 unidades)", style_heading))
+        elements.append(Spacer(1, 12))
+        
+        crit_data = [["Nombre", "Categoría", "Existencias", "Caducidad"]]
+        for med in criticos:
+            caducidad = med.fecha_caducidad.strftime("%d/%m/%Y") if med.fecha_caducidad else "N/A"
+            crit_data.append([med.nombre, med.categoria.nombre, str(med.cantidad), caducidad])
+        
+        crit_table = Table(crit_data)
+        crit_table.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#dc3545')),
+            ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+            ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#fff3cd')),
+            ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#dc3545')),
+            ('TEXTCOLOR', (0,1), (-1,-1), colors.HexColor('#dc3545')),
+        ]))
+        elements.append(crit_table)
+    
+    # Construir el PDF
+    doc.build(elements)
+    
+    # Obtener el valor del buffer y escribir en la respuesta
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+    
+    return response
