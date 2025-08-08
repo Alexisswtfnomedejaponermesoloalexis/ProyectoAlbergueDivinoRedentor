@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'admin_interface',
     'colorfield',
     'django.contrib.admin',
@@ -136,3 +137,48 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 SILENCED_SYSTEM_CHECKS = ["security.W019"]
+
+
+# settings.py
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Albergue Divino Redentor",
+    "site_header": "Albergue Divino Redentor",
+    "site_brand": "Administración",
+    "welcome_sign": "Bienvenido al sistema de administración",
+    "copyright": "Albergue Divino Redentor",
+    
+    # Personalización de iconos
+    "icons": {
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "tu_app.Paciente": "fas fa-user-injured",
+        "tu_app.Medicamento": "fas fa-pills",
+        "tu_app.ExpedienteMedico": "fas fa-file-medical",
+        "tu_app.SalidaMedicamento": "fas fa-file-prescription",
+        "tu_app.Medico": "fas fa-user-md",
+        "tu_app.CategoriaMedicamento": "fas fa-tags",
+    },
+    
+    # Tema oscuro
+    "theme": "dark",
+
+    # Menú lateral personalizado
+    "order_with_respect_to": [
+        "tu_app",
+        "tu_app.Paciente",
+        "tu_app.Medicamento",
+        "tu_app.SalidaMedicamento",
+    ],
+    
+    # Personalización de la UI
+    "custom_css": "css/custom_admin.css",
+    "custom_js": "js/custom_admin.js",
+    "show_ui_builder": True,  # Activa el constructor visual en el admin
+    
+    # Enlaces útiles en el menú superior
+    "topmenu_links": [
+        {"name": "Sitio web", "url": "http://127.0.0.1:8000", "new_window": True},
+        {"model": "auth.user"},
+    ],
+}
