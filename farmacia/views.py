@@ -188,7 +188,6 @@ def expediente(request, id):
 
 def medicamento_nuevo(request):
     if request.method == 'POST':
-        # (request.POST) FORMULARIO CON DATOS RECIBIDOS
         form = MedicamentoForm(request.POST)
         # SE VALIDAN LOS DATOS
         if form.is_valid():
