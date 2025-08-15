@@ -5,13 +5,11 @@
 ####################################################################################################################################################
 ####################################################################################################################################################
 
-# ESTE ES EL CEREBRO DE LA APLICACIÓN WEB, AQUÍ SE LLEVAN A ACABO TODOS LOS PROCESOS MENCIONADOS ANTERIORMENTE, DESDE DAR DE ALTA A UN PACIENTE, UNA SALIDA
+# ESTE ES EL CEREBRO DE LA APLICACIÓN WEB, AQUÍ SE LLEVAN A CABO TODOS LOS PROCESOS MENCIONADOS ANTERIORMENTE, DESDE DAR DE ALTA A UN PACIENTE, UNA SALIDA
 # MEDICAMENTO, HASTA ELIMINAR O EDITAR SUS DATOS, DE IGUAL MANERA SE LLEVA EL CONTROL DEL EXPEDIENTE.
 
-# TODA FUNCIÓN EXTRA QUE SE VAYA A AGREGAR A LA APLICAICÓN, DEBERÁ TENER SU FUNCIÓN EN ESTE DOCUMENTO PARA QUE ASÍ PUEDA FUNCIONAR DE MANERA ÓPTIMA.
+# TODA FUNCIÓN EXTRA QUE SE VAYA A AGREGAR A LA APLICACIÓN, DEBERÁ TENER SU FUNCIÓN EN ESTE DOCUMENTO PARA QUE ASÍ PUEDA FUNCIONAR DE MANERA ÓPTIMA.
 # DEPENDIENDO DE LA FUNCIÓN QUE SE DESEE AGREGAR CAMBIARAN LOS PARÁMETROS O FUNCIONES A USAR.
-
-
 
 ####################################################################################################################################################
 ####################################################################################################################################################
@@ -37,10 +35,16 @@ from io import BytesIO
 from django.utils import timezone
 
 
-#FUNCIÓN DEL MENÚ PRINCIPAL, LA FUNCIÓN INDEX PERMITE MOSTRAR UNA INTERFAZ MÁS INTUITIVA MOSTRANDO CARDS DE INFORMACIÓN.
-# PERMITE MOSTRAR LOS EL CONTEO D EMÉDICOS, PACIENTES, LOS MEDICAMENTOS_CRITICOS
-
+# Vista principal (dashboard)
 def index(request):
+    """
+    Muestra la página principal del sistema con estadísticas resumidas:
+    - Conteo de medicamentos críticos (menos de 5 unidades)
+    - Conteo de salidas de medicamentos registradas hoy
+    - Conteo total de pacientes
+    - Conteo total de médicos
+    - Últimas 5 salidas de medicamentos
+    """
     context = {
         'criticos_count': Medicamento.objects.filter(cantidad__lt=5).count(),
         'salidas_hoy_count': SalidaMedicamento.objects.count(),
@@ -51,33 +55,45 @@ def index(request):
     
     return render(request, 'index.html', context)
 
-# FUNCIÓN PACIENTES, DICHA FUNCIÓN ALMACENA A LOS PACIENTES REGISTRADOS EN 'pacientes_list' ASIGNANDOLE LOS OBJETOS DADOS DE ALTA EN REFERENCIA AL MODELO 'Paciente'
-# AL ÚTLIMO RETORNA LOS DATOS ALMACENADOS A SU RESPECTIVA VISTA (EN ESTE CASO ES "pacientes.html")
-
+# Vista para listar pacientes
 def pacientes(request):
+    """
+    Muestra todos los pacientes registrados en el sistema.
+    Obtiene la lista completa de pacientes desde la base de datos.
+    """
     pacientes_list = Paciente.objects.all()
     context = {
         'pacientes': pacientes_list
     }
     return render(request, 'pacientes.html', context)
 
-# FUNCIÓN MÉDICOS, ESTA FUNCIÓN SIRVE PARA ALMACENAR A LOS MÉDICOS REGISTRADOS EN "medicos_list" ASIGNANDOLE LOS OBJETOS DADOS DE ALTA EN REFERENCIA AL MODELO 'médico
-# AL ÚTLIMO RETORNA LOS DATOS ALMACENADOS A SU RESPECTIVA VISTA (EN ESTE CASO ES "medicos.html")
-
-
+# Vista para listar médicos
 def medicos(request):
+    """
+    Muestra todos los médicos registrados en el sistema.
+    Obtiene la lista completa de médicos desde la base de datos.
+    """
     medicos_list = Medico.objects.all()
     context = {
         'medicos': medicos_list
     }
     return render(request, 'medicos.html', context)
 
-# FUNCIÓN MEDICAMENTOS, AQUÍ SE REALIZA LOS EDITS PARA CONFIGURAR SOBRE LOS MEDICAMENTOS QUE SE ENCUENTRAN EN INVENTARIO CRÍTICO, MEDIANTE EL (.filter(cantidad__5))
-# AL IGUAL QUE SE SELECCIONA LA CATEGORIA (DICHAS CATEGORIAS SE ASIGNAN DIRECTAMENTE EN EL PANEL DEL ADMINISTRADOR)
-
+# Vista para listar medicamentos
 def medicamentos(request):
+    """
+    Muestra el inventario completo de medicamentos con:
+    - Lista de todos los medicamentos con su categoría
+    - Medicamentos en estado crítico (menos de 5 unidades)
+    - Todas las categorías disponibles para filtrado
+    """
+    # Obtener todos los medicamentos con su categoría relacionada
     medicamentos_list = Medicamento.objects.select_related('categoria').all()
+    
+    # Filtrar medicamentos críticos (menos de 5 unidades)
     criticos = Medicamento.objects.filter(cantidad__lt=5)
+    
+    # Obtener todas las categorías para el filtro
     categorias = CategoriaMedicamento.objects.all()
     
     context = {
@@ -87,46 +103,51 @@ def medicamentos(request):
     }
     return render(request, 'medicamentos.html', context)
 
-# FUNCIÓN DE SALIDAS, AQUÍ SE RELACIONA CON EL MODELO 'SalidaMedicamento' 
-# AQUÍ MUESTRA LAS SALIDAS REGISTRADAS CON ANTERIORIRDAD, MOSTRANDO EL MÉDICO, PACIENTE Y MEDICAMENTO ASIGNADO
-
+# Vista para listar salidas de medicamentos
 def salidas(request):
+    """
+    Muestra todas las salidas de medicamentos registradas.
+    Incluye información relacionada de medicamento, paciente y médico.
+    """
     salidas_list = SalidaMedicamento.objects.select_related('medicamento', 'paciente', 'medico').all()
     context = {
         'salidas': salidas_list
     }
     return render(request, 'salidas.html', context)
 
-# FUNCIÓN DE REPORTES, *MÓDUCLO AÚN SIN TÉRMINAR*
-# AQUÍ HACEMOS USO DEL MÉTODO .ANNOTATE()
-# DICHO MÉTODO SE UTILIZA PARA REALIZAR AGREGACIONES Y CÁLCULOS SOBRE GRUPOS DE REGISTROS EN ESTE CASO A 'cantidad'
-# SE REQUIERE IMPORTAR 'SUM'
-# EL MÉTODO DE ORDER_BY SIRVE PARA ORDENAR LOS VALORES
+# Vista de reportes y estadísticas
 def reportes(request):
-    # Estadísticas de medicamentos más entregados
+    """
+    Genera reportes y estadísticas del sistema:
+    - Top 5 de medicamentos más entregados
+    - Medicamentos en estado crítico (menos de 5 unidades)
+    - Datos para gráficas de medicamentos entregados y distribución por categoría
+    """
+    # Estadísticas de medicamentos más entregados (top 5)
     medicamentos_mas_entregados = SalidaMedicamento.objects.values(
         'medicamento__nombre'
     ).annotate(
         total=Sum('cantidad')
     ).order_by('-total')[:5]
     
-    # CORRECCIÓN: Cambiar 'existencias' por 'cantidad'
+    # Medicamentos críticos (menos de 5 unidades)
     medicamentos_criticos = Medicamento.objects.filter(cantidad__lt=5)
     
-    # Datos para gráficas
+    # Datos para gráfica de medicamentos más entregados
     medicamentos_entregados_data = list(
         SalidaMedicamento.objects.values('medicamento__nombre')
         .annotate(total=Sum('cantidad'))
         .order_by('-total')[:5]
     )
     
+    # Datos para gráfica de distribución por categoría
     distribucion_categorias = list(
         Medicamento.objects.values('categoria__nombre')
         .annotate(total=Sum('cantidad'))
         .exclude(total=0)
     )
     
-    # Convertir a JSON
+    # Convertir datos a JSON para usar en JavaScript (gráficas)
     medicamentos_entregados_json = json.dumps(
         [{'medicamento': item['medicamento__nombre'], 'total': item['total']} 
          for item in medicamentos_entregados_data]
@@ -145,25 +166,37 @@ def reportes(request):
     }
     return render(request, 'reportes.html', context)
 
-# FUNCIÓN DE EXPEDIENTES, DICHA FUNCIÓN DE EXPEDIENTE TRABAJA EN CONJUNTO CON 3 MODELOS, EXTRAE TODOS LOS DATOS DEL PACIENTE
-# UTILIZA EL MODELO HISTOPRIA_MÉDICA, HISTORIA_MÉDICA FUNCIONA COMO NOTAS QUE AGREGA EL MÉDICO HACÍA EL PACIENTE
-#  AL IGUAL QUE VÍNCULA LAS SALIDAS DE MEDICAMENTO QUE SE LE HAN ASIGNADO AL PACIENTE 
-
-
+# Vista para ver y gestionar expediente médico de un paciente
 def expediente(request, id):
+    """
+    Muestra y gestiona el expediente médico de un paciente específico:
+    - Información básica del paciente
+    - Historial médico (notas médicas)
+    - Salidas de medicamentos asociadas al paciente
+    
+    Permite agregar nuevas notas médicas al expediente.
+    """
+    # Obtener paciente por ID o mostrar error 404 si no existe
     paciente = get_object_or_404(Paciente, pk=id)
+    
+    # Obtener o crear expediente médico del paciente
     expediente, created = ExpedienteMedico.objects.get_or_create(paciente=paciente)
+    
+    # Obtener salidas de medicamento asociadas al paciente
     salidas = SalidaMedicamento.objects.filter(paciente=paciente).select_related('medicamento')
     
-    # Obtener todas las historias médicas ordenadas por fecha descendente
-    # HACEMOS USO DEL MÉTODO ==POST
+    # Obtener historias médicas ordenadas por fecha (más reciente primero)
     historias = expediente.historias.all().order_by('-fecha_creacion')
     
+    # Procesar formulario para nueva historia médica
     if request.method == 'POST':
         form = HistoriaMedicaForm(request.POST)
         if form.is_valid():
+            # Crear nueva historia médica sin guardar aún
             nueva_historia = form.save(commit=False)
+            # Asociar al expediente del paciente
             nueva_historia.expediente = expediente
+            # Guardar en base de datos
             nueva_historia.save()
             messages.success(request, 'Nota médica agregada correctamente')
             return redirect('expediente', id=paciente.id)
@@ -179,25 +212,28 @@ def expediente(request, id):
     }
     return render(request, 'expediente.html', context)
 
+######################################################################################
+### FORMULARIOS - FUNCIONES PARA CREAR Y EDITAR REGISTROS EN EL SISTEMA ###
+######################################################################################
 
-## F    O   R   M   S        AQUÍ SE ALMACENAN LAS FUNCIONES DE LOS FORMULARIOS DE AGREGAR UNA ALTA O EDITAR UNA ALTA REGISTRADA        ##
-
-
-# FUNCIÓN MEDICAMENTO_NUEVO CUYA FUNCIÓN SIRVE PARA DAR DE ALTA MEDICAMENTOS
-# HACEMOS USO DEL MÉTODO POST PARA HACE ENVÍO DE DATOS DEL FORMULARIO 
-
+# Crear nuevo medicamento
 def medicamento_nuevo(request):
+    """
+    Maneja la creación de nuevos medicamentos en el sistema:
+    - Muestra formulario vacío para nuevo medicamento (GET)
+    - Procesa formulario enviado y guarda en base de datos (POST)
+    - Muestra mensajes de éxito o error
+    """
     if request.method == 'POST':
+        # Procesar formulario con datos recibidos
         form = MedicamentoForm(request.POST)
-        # SE VALIDAN LOS DATOS
         if form.is_valid():
-            #LOS GUARDA EN LA BDD
+            # Guardar medicamento en base de datos
             form.save()
             messages.success(request, 'Medicamento creado correctamente')
             return redirect('medicamentos')
-        
-        #AQUÍ SE SOLICITA EL FORMULARIO VACÍO
     else:
+        # Mostrar formulario vacío para nuevo medicamento
         form = MedicamentoForm()
     
     context = {
@@ -206,25 +242,27 @@ def medicamento_nuevo(request):
     }
     return render(request, 'forms/medicamento_form.html', context)
 
-# FUNCIÓN MEDICAMENTO_EDITAR, DICHA FUNCIÓN SIRVE PARA EDITAR LOS MEDCICAMENTOS REGISTRADOS
-# HACEMOS USO DEL ('get_object_or_404' por si no identifica el medicamento, e sporque no esta registrado aún, o en sud efecto hay un error)
-# SE IDENTIFICA MEDIANTE LA PK=PRIMARY KEY QUE EN ESTE CASO ES EL ID DEL MEDICAMENTO
-
+# Editar medicamento existente
 def medicamento_editar(request, id):
+    """
+    Maneja la edición de medicamentos existentes:
+    - Obtiene medicamento por ID o muestra error 404
+    - Muestra formulario precargado con datos actuales (GET)
+    - Procesa formulario enviado y actualiza en base de datos (POST)
+    """
+    # Obtener medicamento o mostrar error 404
     medicamento = get_object_or_404(Medicamento, pk=id)
     
-    #AQUÍ SE ENVÍA LOS DATOS EDITADOS
     if request.method == 'POST':
-        #FORMULARIO DE DATOS (MEDICAMENTO FORM) CON LA INSTANCIA EXISTENTE (OBJ.MEDICAMENTO)
+        # Procesar formulario con datos actualizados
         form = MedicamentoForm(request.POST, instance=medicamento)
         if form.is_valid():
-            # ACTUALIZA EL REGISTRO EXISTENTE
+            # Actualizar medicamento en base de datos
             form.save()
             messages.success(request, 'Medicamento actualizado correctamente')
             return redirect('medicamentos')
-        # SOLICITUD PARA EDITAR
     else:
-        #SE PRECARGA EL FORMULARIO CON LOS DATOS EXISTENTES
+        # Mostrar formulario con datos actuales del medicamento
         form = MedicamentoForm(instance=medicamento)
     
     context = {
@@ -234,7 +272,12 @@ def medicamento_editar(request, id):
     }
     return render(request, 'forms/medicamento_form.html', context)
 
+# Crear nuevo paciente
 def paciente_nuevo(request):
+    """
+    Maneja la creación de nuevos pacientes en el sistema.
+    Similar a medicamento_nuevo pero para pacientes.
+    """
     if request.method == 'POST':
         form = PacienteForm(request.POST)
         if form.is_valid():
@@ -250,7 +293,12 @@ def paciente_nuevo(request):
     }
     return render(request, 'forms/paciente_form.html', context)
 
+# Editar paciente existente
 def paciente_editar(request, id):
+    """
+    Maneja la edición de pacientes existentes.
+    Similar a medicamento_editar pero para pacientes.
+    """
     paciente = get_object_or_404(Paciente, pk=id)
     
     if request.method == 'POST':
@@ -268,17 +316,35 @@ def paciente_editar(request, id):
     }
     return render(request, 'forms/paciente_form.html', context)
 
+# Registrar nueva salida de medicamento
 def salida_nueva(request):
+    """
+    Maneja el registro de nuevas salidas de medicamentos:
+    - Procesa formulario y registra la salida (POST)
+    - Actualiza el inventario del medicamento
+    - Maneja casos donde no hay suficiente inventario
+    """
     if request.method == 'POST':
         form = SalidaMedicamentoForm(request.POST)
         if form.is_valid():
-            salida = form.save()
-            # Actualizar inventario
+            # Guardar salida sin actualizar inventario aún
+            salida = form.save(commit=False)
+            
+            # Actualizar inventario del medicamento
             medicamento = salida.medicamento
             medicamento.cantidad -= salida.cantidad
+            
+            # Prevenir cantidades negativas
             if medicamento.cantidad < 0:
                 medicamento.cantidad = 0
+            
+            # Actualizar estado del medicamento
+            medicamento.status = medicamento.cantidad > 0
             medicamento.save()
+            
+            # Guardar salida definitivamente
+            salida.save()
+            
             messages.success(request, 'Salida registrada correctamente')
             return redirect('salidas')
     else:
@@ -290,7 +356,12 @@ def salida_nueva(request):
     }
     return render(request, 'forms/salida_form.html', context)
 
+# Crear nuevo médico
 def medico_nuevo(request):
+    """
+    Maneja la creación de nuevos médicos en el sistema.
+    Similar a paciente_nuevo pero para médicos.
+    """
     if request.method == 'POST':
         form = MedicoForm(request.POST)
         if form.is_valid():
@@ -306,7 +377,12 @@ def medico_nuevo(request):
     }
     return render(request, 'forms/medico_form.html', context)
 
+# Editar médico existente
 def medico_editar(request, id):
+    """
+    Maneja la edición de médicos existentes.
+    Similar a paciente_editar pero para médicos.
+    """
     medico = get_object_or_404(Medico, pk=id)
     
     if request.method == 'POST':
@@ -325,8 +401,17 @@ def medico_editar(request, id):
     }
     return render(request, 'forms/medico_form.html', context)
 
-#DELETE
+######################################################################################
+### ELIMINACIONES - FUNCIONES PARA ELIMINAR REGISTROS DEL SISTEMA ###
+######################################################################################
+
+# Eliminar medicamento
 def medicamento_eliminar(request, id):
+    """
+    Maneja la eliminación de medicamentos:
+    - Confirma la eliminación (GET)
+    - Elimina el medicamento de la base de datos (POST)
+    """
     medicamento = get_object_or_404(Medicamento, pk=id)
     
     if request.method == 'POST':
@@ -339,7 +424,12 @@ def medicamento_eliminar(request, id):
     }
     return render(request, 'delete/medicamento_eliminar.html', context)
 
+# Eliminar paciente
 def paciente_eliminar(request, id):
+    """
+    Maneja la eliminación de pacientes.
+    Similar a medicamento_eliminar pero para pacientes.
+    """
     paciente = get_object_or_404(Paciente, pk=id)
     
     if request.method == 'POST':
@@ -352,7 +442,12 @@ def paciente_eliminar(request, id):
     }
     return render(request, 'delete/paciente_eliminar.html', context)
 
+# Eliminar médico
 def medico_eliminar(request, id):
+    """
+    Maneja la eliminación de médicos.
+    Similar a medicamento_eliminar pero para médicos.
+    """
     medico = get_object_or_404(Medico, pk=id)
     
     if request.method == 'POST':
@@ -365,22 +460,33 @@ def medico_eliminar(request, id):
     }
     return render(request, 'delete/medico_eliminar.html', context)
 
+######################################################################################
+### FUNCIONES ESPECIALES - REPORTES PDF, CATEGORÍAS, ETC. ###
+######################################################################################
+
+# Generar PDF de inventario
 def generar_pdf_inventario(request):
-    # Obtener todos los medicamentos
+    """
+    Genera un reporte PDF del inventario de medicamentos:
+    - Lista completa de medicamentos con sus detalles
+    - Sección especial para medicamentos críticos
+    - Diseño profesional con estilos y colores
+    """
+    # Obtener todos los medicamentos con sus categorías
     medicamentos = Medicamento.objects.select_related('categoria').all()
     
-    # Crear un objeto HttpResponse con los headers para PDF
+    # Configurar respuesta HTTP para PDF
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="inventario_medicamentos.pdf"'
     
-    # Crear un buffer para el PDF
+    # Crear buffer para el PDF
     buffer = BytesIO()
     
-    # Crear el documento PDF en formato horizontal
+    # Configurar documento PDF en formato horizontal
     doc = SimpleDocTemplate(buffer, pagesize=landscape(letter))
     elements = []
     
-    # Estilos
+    # Estilos para el documento
     styles = getSampleStyleSheet()
     style_title = styles['Title']
     style_heading = styles['Heading2']
@@ -392,20 +498,20 @@ def generar_pdf_inventario(request):
     elements.append(Paragraph(f"Fecha de generación: {timezone.now().strftime('%d/%m/%Y %H:%M')}", style_body))
     elements.append(Spacer(1, 24))
     
-    # Datos para la tabla
+    # Preparar datos para la tabla principal
     data = [["Clave", "Nombre", "Categoría", "Descripción", "Existencias", "Estado", "Caducidad"]]
     
     for med in medicamentos:
+        # Determinar estado (Disponible/No disponible)
         estado = "Disponible" if med.status else "No disponible"
+        
+        # Formatear fecha de caducidad
         caducidad = med.fecha_caducidad.strftime("%d/%m/%Y") if med.fecha_caducidad else "N/A"
-        # Acortar la descripción si es muy larga
-        descripcion = (med.descripcion[:50] + '...') if len(med.descripcion) > 50 else med.descripcion
         
-        # Resaltar medicamentos críticos
-        estilo_fila = []
-        if med.cantidad < 5:
-            estilo_fila = ['TEXTCOLOR', colors.red]
+        # Acortar descripción si es muy larga
+        descripcion = (med.descripcion[:50] + '...') if med.descripcion and len(med.descripcion) > 50 else med.descripcion or ""
         
+        # Agregar fila a la tabla
         data.append([
             med.clave,
             med.nombre,
@@ -416,72 +522,85 @@ def generar_pdf_inventario(request):
             caducidad
         ])
     
-    # Crear la tabla
+    # Crear tabla principal
     table = Table(data)
     table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0d6efd')),
-        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0,0), (-1,0), 12),
-        ('BOTTOMPADDING', (0,0), (-1,0), 12),
-        ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#f8f9fa')),
-        ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#dee2e6')),
-        ('FONTSIZE', (0,1), (-1,-1), 10),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0d6efd')),  # Encabezado azul
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),            # Texto blanco encabezado
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),                        # Centrar todo el contenido
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),              # Negrita encabezado
+        ('FONTSIZE', (0,0), (-1,0), 12),                            # Tamaño fuente encabezado
+        ('BOTTOMPADDING', (0,0), (-1,0), 12),                       # Espaciado inferior encabezado
+        ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#f8f9fa')), # Fondo gris claro para filas
+        ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#dee2e6')),    # Bordes grises
+        ('FONTSIZE', (0,1), (-1,-1), 10),                           # Tamaño fuente contenido
     ]))
     
-    # Resaltar filas de medicamentos críticos
+    # Resaltar medicamentos críticos (menos de 5 unidades)
     for i in range(1, len(data)):
         if int(data[i][4]) < 5:  # Columna de existencias
             table.setStyle(TableStyle([
-                ('TEXTCOLOR', (0,i), (-1,i), colors.red),
-                ('FONTNAME', (0,i), (-1,i), 'Helvetica-Bold'),
+                ('TEXTCOLOR', (0,i), (-1,i), colors.red),           # Texto rojo
+                ('FONTNAME', (0,i), (-1,i), 'Helvetica-Bold'),      # Negrita
             ]))
     
     elements.append(table)
     
-    # Medicamentos críticos
+    # Sección adicional para medicamentos críticos
     criticos = Medicamento.objects.filter(cantidad__lt=5)
     if criticos.exists():
         elements.append(Spacer(1, 24))
         elements.append(Paragraph("Medicamentos Críticos (menos de 5 unidades)", style_heading))
         elements.append(Spacer(1, 12))
         
+        # Preparar datos para tabla de críticos
         crit_data = [["Nombre", "Categoría", "Existencias", "Caducidad"]]
         for med in criticos:
             caducidad = med.fecha_caducidad.strftime("%d/%m/%Y") if med.fecha_caducidad else "N/A"
             crit_data.append([med.nombre, med.categoria.nombre, str(med.cantidad), caducidad])
         
+        # Crear tabla de críticos
         crit_table = Table(crit_data)
         crit_table.setStyle(TableStyle([
-            ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#dc3545')),
-            ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-            ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#fff3cd')),
-            ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#dc3545')),
-            ('TEXTCOLOR', (0,1), (-1,-1), colors.HexColor('#dc3545')),
+            ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#dc3545')), # Encabezado rojo
+            ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),           # Texto blanco encabezado
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),                       # Centrar contenido
+            ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),             # Negrita encabezado
+            ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#fff3cd')),# Fondo amarillo claro
+            ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#dc3545')),   # Bordes rojos
+            ('TEXTCOLOR', (0,1), (-1,-1), colors.HexColor('#dc3545')), # Texto rojo
         ]))
         elements.append(crit_table)
     
     # Construir el PDF
     doc.build(elements)
     
-    # Obtener el valor del buffer y escribir en la respuesta
+    # Obtener PDF del buffer y enviar como respuesta
     pdf = buffer.getvalue()
     buffer.close()
     response.write(pdf)
     
     return response
 
+# Crear nueva categoría de medicamento
 def categoria_nueva(request):
+    """
+    Maneja la creación de nuevas categorías de medicamentos:
+    - Recibe el nombre de la categoría por POST
+    - Crea la categoría en la base de datos
+    - Muestra mensajes de éxito o error
+    """
     if request.method == 'POST':
+        # Obtener nombre de categoría del formulario
         nombre = request.POST.get('nombre')
         if nombre:
+            # Crear y guardar nueva categoría
             CategoriaMedicamento.objects.create(nombre=nombre)
             messages.success(request, 'Categoría creada correctamente')
             return redirect('medicamentos')
         else:
+            # Mostrar error si no se proporcionó nombre
             messages.error(request, 'El nombre de la categoría es requerido')
     
+    # Mostrar formulario para nueva categoría
     return render(request, 'forms/categoria_form.html')
