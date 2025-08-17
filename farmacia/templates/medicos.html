@@ -33,16 +33,23 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     </div>
 
     <!-- Buscador -->
-    <div class="card mb-4">
+     <div class="card mb-4">
         <div class="card-body">
             <form method="get" class="row g-3">
                 <div class="col-md-8">
-                    <label class="form-label">Buscar</label>
+                    <label class="form-label">Buscar por nombre, apellidos o especialidad</label>
                     <div class="input-group">
-                        <input type="text" name="q" class="form-control" placeholder="Nombre o apellidos...">
+                        <input type="text" name="q" class="form-control" 
+                               placeholder="Nombre, apellidos o especialidad..." 
+                               value="{{ query }}">
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-search"></i>
+                            <i class="bi bi-search"></i> Buscar
                         </button>
+                        {% if query %}
+                            <a href="{% url 'medicos' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Limpiar
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </form>

@@ -36,25 +36,31 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
             <form method="post" class="needs-validation" novalidate>
 <!--el csrf_token se introduce como buena práctica para evitar la falsificación de solicitud entre sitios, ¿cómo?, generando un token único por usuario, temporal mientras se este logeado--> 
                 {% csrf_token %}
-                <div class="mb-4">
-                    <div class="form-group">
-                        <label for="id_nombre" class="form-label fw-bold">Nombre</label>
-                        {{ form.nombre }}
-                        <div class="invalid-feedback">
-                            Por favor ingrese un nombre válido.
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <div class="form-group">
-                        <label for="id_apellidos" class="form-label fw-bold">Apellidos</label>
-                        {{ form.apellidos }}
-                        <div class="invalid-feedback">
-                            Por favor ingrese apellidos válidos.
-                        </div>
-                    </div>
-                </div>
+                <!-- Para el campo nombre -->
+<div class="mb-4">
+    <div class="form-group">
+        <label for="id_nombre" class="form-label fw-bold">Nombre</label>
+        {{ form.nombre }}
+        {% if form.nombre.errors %}
+            <div class="invalid-feedback d-block">
+                {{ form.nombre.errors|striptags }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Para el campo apellidos -->
+<div class="mb-4">
+    <div class="form-group">
+        <label for="id_apellidos" class="form-label fw-bold">Apellidos</label>
+        {{ form.apellidos }}
+        {% if form.apellidos.errors %}
+            <div class="invalid-feedback d-block">
+                {{ form.apellidos.errors|striptags }}
+            </div>
+        {% endif %}
+    </div>
+</div>
                 
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                     <a href="{% url 'pacientes' %}" class="btn btn-outline-secondary me-md-2">

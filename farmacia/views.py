@@ -33,7 +33,7 @@ from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, 
 from reportlab.lib.styles import getSampleStyleSheet
 from io import BytesIO
 from django.utils import timezone
-
+from django.db.models import Q
 
 # Vista principal (dashboard)
 def index(request):
@@ -56,63 +56,98 @@ def index(request):
     return render(request, 'index.html', context)
 
 # Vista para listar pacientes
+
 def pacientes(request):
     """
-    Muestra todos los pacientes registrados en el sistema.
-    Obtiene la lista completa de pacientes desde la base de datos.
+    Muestra todos los pacientes registrados en el sistema con funcionalidad de búsqueda.
+     Obtiene la lista completa de pacientes desde la base de datos.
     """
-    pacientes_list = Paciente.objects.all()
+    query = request.GET.get('q', '')  # Obtener parámetro de búsqueda
+    
+    if query:
+        # Filtrar pacientes que coincidan con la consulta en nombre o apellidos
+        pacientes_list = Paciente.objects.filter(
+            Q(nombre__icontains=query) | Q(apellidos__icontains=query))
+    else:
+        pacientes_list = Paciente.objects.all()
+    
     context = {
-        'pacientes': pacientes_list
+        'pacientes': pacientes_list,
+        'query': query  # Pasar la consulta al template para mantenerla en el input
     }
     return render(request, 'pacientes.html', context)
 
 # Vista para listar médicos
+"""
+        Muestra todos los medicos registrados en el sistema con funcionalidad de búsqueda.
+        Obtiene la lista completa de medicos desde la base de datos.
+        """
 def medicos(request):
-    """
-    Muestra todos los médicos registrados en el sistema.
-    Obtiene la lista completa de médicos desde la base de datos.
-    """
-    medicos_list = Medico.objects.all()
-    context = {
-        'medicos': medicos_list
-    }
+        
+    query = request.GET.get('q', '')
+    
+    if query:
+        medicos_list = Medico.objects.filter(
+            Q(nombre__icontains=query) | 
+            Q(apellidos__icontains=query) |
+            Q(especialidad__icontains=query))
+    else:
+        medicos_list = Medico.objects.all()
+    
+    context = {'medicos': medicos_list, 'query': query}
     return render(request, 'medicos.html', context)
 
 # Vista para listar medicamentos
-def medicamentos(request):
-    """
-    Muestra el inventario completo de medicamentos con:
+"""Muestra el inventario completo de medicamentos con:
     - Lista de todos los medicamentos con su categoría
     - Medicamentos en estado crítico (menos de 5 unidades)
     - Todas las categorías disponibles para filtrado
     """
-    # Obtener todos los medicamentos con su categoría relacionada
-    medicamentos_list = Medicamento.objects.select_related('categoria').all()
+def medicamentos(request):
+    query = request.GET.get('q', '')
     
-    # Filtrar medicamentos críticos (menos de 5 unidades)
+    if query:
+        medicamentos_list = Medicamento.objects.select_related('categoria').filter(
+            Q(nombre__icontains=query) | 
+            Q(clave__icontains=query) |
+            Q(categoria__nombre__icontains=query))
+    else:
+        medicamentos_list = Medicamento.objects.select_related('categoria').all()
+    
+    # Mantén el resto de tu lógica para medicamentos críticos y categorías
     criticos = Medicamento.objects.filter(cantidad__lt=5)
-    
-    # Obtener todas las categorías para el filtro
     categorias = CategoriaMedicamento.objects.all()
     
     context = {
         'medicamentos': medicamentos_list,
         'criticos': criticos,
-        'categorias': categorias
+        'categorias': categorias,
+        'query': query
     }
     return render(request, 'medicamentos.html', context)
 
 # Vista para listar salidas de medicamentos
-def salidas(request):
-    """
+"""
     Muestra todas las salidas de medicamentos registradas.
     Incluye información relacionada de medicamento, paciente y médico.
     """
-    salidas_list = SalidaMedicamento.objects.select_related('medicamento', 'paciente', 'medico').all()
-    context = {
-        'salidas': salidas_list
-    }
+def salidas(request):
+    query = request.GET.get('q', '')
+    
+    if query:
+        salidas_list = SalidaMedicamento.objects.select_related(
+            'medicamento', 'paciente', 'medico'
+        ).filter(
+            Q(medicamento__nombre__icontains=query) |
+            Q(paciente__nombre__icontains=query) |
+            Q(paciente__apellidos__icontains=query) |
+            Q(medico__nombre__icontains=query) |
+            Q(medico__apellidos__icontains=query))
+    else:
+        salidas_list = SalidaMedicamento.objects.select_related(
+            'medicamento', 'paciente', 'medico').all()
+    
+    context = {'salidas': salidas_list, 'query': query}
     return render(request, 'salidas.html', context)
 
 # Vista de reportes y estadísticas
@@ -166,37 +201,33 @@ def reportes(request):
     }
     return render(request, 'reportes.html', context)
 
+
+
 # Vista para ver y gestionar expediente médico de un paciente
-def expediente(request, id):
-    """
-    Muestra y gestiona el expediente médico de un paciente específico:
+
+    
+""""   Muestra y gestiona el expediente médico de un paciente específico:
     - Información básica del paciente
     - Historial médico (notas médicas)
     - Salidas de medicamentos asociadas al paciente
     
-    Permite agregar nuevas notas médicas al expediente.
-    """
-    # Obtener paciente por ID o mostrar error 404 si no existe
+    Permite agregar nuevas notas médicas al expediente."""
+ 
+
+
+def expediente(request, id):
     paciente = get_object_or_404(Paciente, pk=id)
-    
-    # Obtener o crear expediente médico del paciente
     expediente, created = ExpedienteMedico.objects.get_or_create(paciente=paciente)
-    
-    # Obtener salidas de medicamento asociadas al paciente
     salidas = SalidaMedicamento.objects.filter(paciente=paciente).select_related('medicamento')
-    
-    # Obtener historias médicas ordenadas por fecha (más reciente primero)
     historias = expediente.historias.all().order_by('-fecha_creacion')
     
-    # Procesar formulario para nueva historia médica
     if request.method == 'POST':
         form = HistoriaMedicaForm(request.POST)
         if form.is_valid():
-            # Crear nueva historia médica sin guardar aún
             nueva_historia = form.save(commit=False)
-            # Asociar al expediente del paciente
             nueva_historia.expediente = expediente
-            # Guardar en base de datos
+            
+
             nueva_historia.save()
             messages.success(request, 'Nota médica agregada correctamente')
             return redirect('expediente', id=paciente.id)
@@ -316,6 +347,7 @@ def paciente_editar(request, id):
     }
     return render(request, 'forms/paciente_form.html', context)
 
+
 # Registrar nueva salida de medicamento
 def salida_nueva(request):
     """
@@ -330,13 +362,23 @@ def salida_nueva(request):
             # Guardar salida sin actualizar inventario aún
             salida = form.save(commit=False)
             
+            # Validar si hay suficiente inventario
+            if salida.cantidad > salida.medicamento.cantidad:
+                # Agregar error al formulario
+                form.add_error(
+                    'cantidad', 
+                    f'No hay suficiente inventario. Disponible: {salida.medicamento.cantidad} unidades'
+                )
+                # Mantener el formulario con errores
+                context = {
+                    'titulo': 'Nueva Salida de Medicamento',
+                    'form': form
+                }
+                return render(request, 'forms/salida_form.html', context)
+            
             # Actualizar inventario del medicamento
             medicamento = salida.medicamento
             medicamento.cantidad -= salida.cantidad
-            
-            # Prevenir cantidades negativas
-            if medicamento.cantidad < 0:
-                medicamento.cantidad = 0
             
             # Actualizar estado del medicamento
             medicamento.status = medicamento.cantidad > 0

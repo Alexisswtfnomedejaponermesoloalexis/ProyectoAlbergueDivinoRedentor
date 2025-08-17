@@ -1,26 +1,3 @@
-<!--$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
- 
-
-&&&&&&&  TEMPLATE QUE MUESTRA LA PANTALLA DEL FORMULARIO PARA REGISTRAR SALIDAS DE MEDICAMENTO &&&&&&&6
-
-
-
-
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$-->
-
 {% extends 'base.html' %}
 
 {% block title %}{{ titulo }}{% endblock %}
@@ -32,17 +9,30 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
             <h2 class="mb-0 text-center">{{ titulo }}</h2>
         </div>
         <div class="card-body">
+            <!-- Mostrar errores generales del formulario -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <strong>Error!</strong> Por favor corrige los siguientes errores:
+                    <ul>
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
             <form method="post" class="needs-validation" novalidate>
-<!--el csrf_token se introduce como buena práctica para evitar la falsificación de solicitud entre sitios, ¿cómo?, generando un token único por usuario, temporal mientras se este logeado--> 
-
                 {% csrf_token %}
+                
                 <div class="mb-4">
                     <div class="form-group">
                         <label for="id_medicamento" class="form-label fw-bold">Medicamento</label>
                         {{ form.medicamento }}
-                        <div class="invalid-feedback">
-                            Por favor seleccione un medicamento.
-                        </div>
+                        {% if form.medicamento.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.medicamento.errors|striptags }}
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -51,18 +41,22 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                         <div class="form-group">
                             <label for="id_cantidad" class="form-label fw-bold">Cantidad</label>
                             {{ form.cantidad }}
-                            <div class="invalid-feedback">
-                                Por favor ingrese una cantidad válida.
-                            </div>
+                            {% if form.cantidad.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.cantidad.errors|striptags }}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="id_medico" class="form-label fw-bold">Médico</label>
                             {{ form.medico }}
-                            <div class="invalid-feedback">
-                                Por favor seleccione un médico.
-                            </div>
+                            {% if form.medico.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.medico.errors|striptags }}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -71,9 +65,11 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     <div class="form-group">
                         <label for="id_paciente" class="form-label fw-bold">Paciente</label>
                         {{ form.paciente }}
-                        <div class="invalid-feedback">
-                            Por favor seleccione un paciente.
-                        </div>
+                        {% if form.paciente.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.paciente.errors|striptags }}
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -81,9 +77,11 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                     <div class="form-group">
                         <label for="id_fecha" class="form-label fw-bold">Fecha y Hora</label>
                         {{ form.fecha }}
-                        <div class="invalid-feedback">
-                            Por favor ingrese una fecha y hora válidas.
-                        </div>
+                        {% if form.fecha.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.fecha.errors|striptags }}
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -97,7 +95,6 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                 </div>
             </form>
         </div>
-       
     </div>
 </div>
 
@@ -144,6 +141,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     }
     .border-top {
         border-top: 2px solid #e9ecef !important;
+    }
+    .invalid-feedback.d-block {
+        display: block;
+        color: #dc3545;
     }
 </style>
 {% endblock %}

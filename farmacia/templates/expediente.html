@@ -42,17 +42,30 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                 <h4>Agregar Nueva Nota Médica</h4>
             </div>
             <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        {{ form.nota }}
-                        {% if form.nota.errors %}
-                            <div class="text-danger">{{ form.nota.errors }}</div>
-                        {% endif %}
-                    </div>
-                    <button type="submit" class="btn btn-primary">Guardar Nota</button>
-                </form>
-            </div>
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Campo para seleccionar médico -->
+        <div class="mb-3">
+            <label for="id_medico" class="form-label">Médico:</label>
+            {{ form.medico }}
+            {% if form.medico.errors %}
+                <div class="text-danger">{{ form.medico.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <!-- Campo para la nota médica -->
+        <div class="mb-3">
+            <label for="id_nota" class="form-label">Nota médica:</label>
+            {{ form.nota }}
+            {% if form.nota.errors %}
+                <div class="text-danger">{{ form.nota.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Guardar Nota</button>
+    </form>
+</div>
         </div>
 
         <!-- Historial de notas médicas -->
@@ -66,7 +79,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                         {% for historia in historias %}
                         <div class="timeline-item mb-4">
                             <div class="timeline-header d-flex justify-content-between">
-                                <strong>{{ historia.medico.get_full_name|default:historia.medico.u }}</strong>
+                                <strong>{{ historia.medico.nombre }} {{ historia.medico.apellidos }}</strong>
                                 <span class="text-muted">{{ historia.fecha_creacion|date:"d/m/Y H:i" }}</span>
                             </div>
                             <div class="timeline-content p-3 bg-light rounded">

@@ -33,23 +33,24 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
     </div>
 
     <!-- Filtros -->
-    <div class="card mb-4">
+     <div class="card mb-4">
         <div class="card-body">
             <form method="get" class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label">Fecha Inicio</label>
-                    <input type="date" name="fecha_inicio" class="form-control">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Fecha Fin</label>
-                    <input type="date" name="fecha_fin" class="form-control">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Médico</label>
-                    <input type="text" name="medico" class="form-control" placeholder="Nombre de médico...">
-                </div>
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                <div class="col-md-8">
+                    <label class="form-label">Buscar por medicamento, paciente o médico</label>
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" 
+                               placeholder="Medicamento, paciente o médico..." 
+                               value="{{ query }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        {% if query %}
+                            <a href="{% url 'salidas' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Limpiar
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
             </form>
         </div>
@@ -71,7 +72,6 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                             <th>Paciente</th>
                             <th>Cantidad</th>
                             <th>Médico</th>
-                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -82,12 +82,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                             <td>{{ salida.paciente.nombre }} {{ salida.paciente.apellidos }}</td>
                             <td>{{ salida.cantidad }}</td>
                             <td>{{ salida.medico.nombre }}</td>
-                            <td>
-                             
-                                <a href="#" class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
+                           
                         </tr>
                         {% empty %}
                         <tr>

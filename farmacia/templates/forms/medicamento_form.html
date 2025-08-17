@@ -32,6 +32,8 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
             <h2 class="mb-0 text-center">{{ titulo }}</h2>
         </div>
         <div class="card-body">
+            
+
             <form method="post" class="needs-validation" novalidate>
 <!--el csrf_token se introduce como buena práctica para evitar la falsificación de solicitud entre sitios, ¿cómo?, generando un token único por usuario, temporal mientras se este logeado--> 
                 {% csrf_token %}
@@ -40,18 +42,14 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                         <div class="form-group">
                             <label for="id_clave" class="form-label fw-bold">Clave</label>
                             {{ form.clave }}
-                            <div class="invalid-feedback">
-                                Por favor ingrese una clave válida.
-                            </div>
+                            
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="id_nombre" class="form-label fw-bold">Nombre</label>
                             {{ form.nombre }}
-                            <div class="invalid-feedback">
-                                Por favor ingrese un nombre válido.
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -66,39 +64,42 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="form-group">
-                            <label for="id_fecha_caducidad" class="form-label fw-bold">Fecha de Caducidad</label>
-                            {{ form.fecha_caducidad }}
-                            <div class="invalid-feedback">
-                                Por favor ingrese una fecha válida.
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                   <div class="col-md-6 mb-3">
+    <div class="form-group">
+        <label for="id_fecha_caducidad" class="form-label fw-bold">Fecha de Caducidad</label>
+        {{ form.fecha_caducidad }}
+        {% if form.fecha_caducidad.errors %}
+            <div class="invalid-feedback d-block">
+                {{ form.fecha_caducidad.errors|striptags }}
+            </div>
+        {% endif %}
+    </div>
+</div>
                 
-                <div class="row mb-4">
-                    <div class="col-md-6 mb-3">
-                        <div class="form-group">
-                            <label for="id_cantidad" class="form-label fw-bold">Cantidad en Inventario</label>
-                            {{ form.cantidad }}
-                            <div class="invalid-feedback">
-                                Por favor ingrese una cantidad válida.
-                            </div>
+             <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="form-group">
+                    <label for="id_cantidad" class="form-label fw-bold">Cantidad en Inventario</label>
+                    {{ form.cantidad }}
+                    {% if form.cantidad.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.cantidad.errors|striptags }}
                         </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="form-group">
-                            <label class="form-label fw-bold d-block">Disponible</label>
-                            <div class="form-check form-switch mt-2">
-                                {{ form.status }}
-                                <label class="form-check-label" for="id_status">
-                                    Activo/Inactivo
-                                </label>
-                            </div>
-                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="form-group">
+                    <label class="form-label fw-bold d-block">Disponible</label>
+                    <div class="form-check form-switch mt-2">
+                        {{ form.status }}
+                        <label class="form-check-label" for="id_status">
+                            Activo/Inactivo
+                        </label>
                     </div>
                 </div>
+            </div>
+        </div>
                 
                 <div class="mb-4">
                     <div class="form-group">
