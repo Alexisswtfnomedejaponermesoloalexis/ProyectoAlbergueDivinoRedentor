@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ga_(0e*eau0gzt1ojekv67q9kkw4cs7burmqi$-7+p1q_fbw9$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['AlbergueDivinoRedentor.pythonanywhere.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -61,7 +61,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-             BASE_DIR / 'templates', 
+             BASE_DIR / 'templates',
              os.path.join(BASE_DIR, 'Farmacia', 'templates'),
         ],
         'APP_DIRS': True,
@@ -127,15 +127,19 @@ USE_TZ = True
 
 # Configuración para archivos estáticos
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Para producción
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # Archivos estáticos globales
-    os.path.join(BASE_DIR, 'Farmacia', 'static'),  # Archivos estáticos de la app
-]
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Para producción
+#STATICFILES_DIRS = [
+    #os.path.join(BASE_DIR, 'static'),  # Archivos estáticos globales
+    #os.path.join(BASE_DIR, 'Farmacia', 'static'),  # Archivos estáticos de la app
+#]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 SILENCED_SYSTEM_CHECKS = ["security.W019"]
@@ -149,7 +153,7 @@ JAZZMIN_SETTINGS = {
     "site_brand": "Administración",
     "welcome_sign": "Bienvenido al sistema de administración",
     "copyright": "Albergue Divino Redentor",
-    
+
     # Personalización de iconos
     "icons": {
         "auth.user": "fas fa-user",
@@ -161,7 +165,7 @@ JAZZMIN_SETTINGS = {
         "tu_app.Medico": "fas fa-user-md",
         "tu_app.CategoriaMedicamento": "fas fa-tags",
     },
-    
+
     # Tema oscuro
     "theme": "dark",
 
@@ -172,12 +176,12 @@ JAZZMIN_SETTINGS = {
         "tu_app.Medicamento",
         "tu_app.SalidaMedicamento",
     ],
-    
+
     # Personalización de la UI
     "custom_css": "css/custom_admin.css",
     "custom_js": "js/custom_admin.js",
     "show_ui_builder": True,  # Activa el constructor visual en el admin
-    
+
     # Enlaces útiles en el menú superior
     "topmenu_links": [
         {"name": "Sitio web", "url": "http://127.0.0.1:8000", "new_window": True},
