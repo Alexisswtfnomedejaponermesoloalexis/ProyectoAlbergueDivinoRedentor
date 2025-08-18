@@ -6,7 +6,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
- 
+
 
 &&&&&&&  TEMPLATE QUE MUESTRA LA PANTALLA DEL FORMULARIO PARA REGISTRAR MEDICAMENTO  &&&&&&&6
 
@@ -32,36 +32,34 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
             <h2 class="mb-0 text-center">{{ titulo }}</h2>
         </div>
         <div class="card-body">
-            
+
 
             <form method="post" class="needs-validation" novalidate>
-<!--el csrf_token se introduce como buena práctica para evitar la falsificación de solicitud entre sitios, ¿cómo?, generando un token único por usuario, temporal mientras se este logeado--> 
+<!--el csrf_token se introduce como buena práctica para evitar la falsificación de solicitud entre sitios, ¿cómo?, generando un token único por usuario, temporal mientras se este logeado-->
                 {% csrf_token %}
                 <div class="row mb-4">
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="id_clave" class="form-label fw-bold">Clave</label>
                             {{ form.clave }}
-                            
+
                         </div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="id_nombre" class="form-label fw-bold">Nombre</label>
                             {{ form.nombre }}
-                            
+
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="row mb-4">
                     <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="id_categoria" class="form-label fw-bold">Categoría</label>
                             {{ form.categoria }}
-                            <div class="invalid-feedback">
-                                Por favor seleccione una categoría.
-                            </div>
+
                         </div>
                     </div>
                    <div class="col-md-6 mb-3">
@@ -75,7 +73,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
         {% endif %}
     </div>
 </div>
-                
+
              <div class="row mb-4">
             <div class="col-md-6 mb-3">
                 <div class="form-group">
@@ -100,17 +98,15 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                 </div>
             </div>
         </div>
-                
+
                 <div class="mb-4">
                     <div class="form-group">
                         <label for="id_descripcion" class="form-label fw-bold">Descripción</label>
                         {{ form.descripcion }}
-                        <div class="invalid-feedback">
-                            Por favor ingrese una descripción válida.
-                        </div>
+
                     </div>
                 </div>
-                
+
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                     <a href="{% url 'medicamentos' %}" class="btn btn-outline-secondary me-md-2">
                         <i class="bi bi-x-circle"></i> Cancelar
@@ -121,7 +117,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                 </div>
             </form>
         </div>
-        
+
     </div>
 </div>
 

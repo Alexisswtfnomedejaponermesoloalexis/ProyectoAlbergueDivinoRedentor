@@ -6,7 +6,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
- 
+
 
 &&&&&&&  TEMPLATE QUE MUESTRA EL PANEL DEL ADMINISTRADOR PERSONALIZADO UTILIZANDO COMO EXTENDS AL TEMPLATE BASE DE LA PÁGINA    &&&&&&&6
                 SE LE DEJO ARRIBA LA BARRA DE NAVEGACIÓN PATA REGRESAR AL PANEL NORMAL SI SE DSEA EN UN SENCILLO PASO
@@ -25,7 +25,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 {% block content %}
 <h2 class="mb-4">Panel Principal</h2>
-    
+
 <!-- Tarjetas resumen -->
 <div class="row">
     <div class="col-md-3">
@@ -42,7 +42,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-3">
         <div class="card">
             <div class="card-header bg-primary text-white">
@@ -57,7 +57,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-3">
         <div class="card">
             <div class="card-header bg-success text-white">
@@ -72,7 +72,7 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
             </div>
         </div>
     </div>
-    
+
     <!--  tarjeta para médicos -->
     <div class="col-md-3">
         <div class="card">
@@ -111,46 +111,6 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
                 <i class="bi bi-person-plus"></i> Nuevo Médico
             </a>
         </div>
-    </div>
-</div>
-
-<!-- Últimas salidas -->
-<div class="card mt-4">
-    <div class="card-header">
-        <i class="bi bi-clock-history"></i> Últimas Salidas Registradas
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Medicamento</th>
-                        <th>Paciente</th>
-                        <th>Médico</th>
-                        <th>Cantidad</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for salida in ultimas_salidas %}
-                    <tr>
-                        <td>{{ salida.fecha|date:"d/m/Y H:i" }}</td>
-                        <td>{{ salida.medicamento.nombre }}</td>
-                        <td>{{ salida.paciente.nombre }} {{ salida.paciente.apellidos }}</td>
-                        <td>{{ salida.medico.nombre }} {{ salida.medico.apellidos }}</td>
-                        <td>{{ salida.cantidad }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center">No hay salidas registradas</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <a href="{% url 'admin:farmacia_salidamedicamento_changelist' %}" class="btn btn-outline-secondary">
-            Ver histórico completo <i class="bi bi-arrow-right"></i>
-        </a>
     </div>
 </div>
 
